@@ -1,0 +1,28 @@
+/* Paleta "NLogDeFome" - Quente, Aconchegante e Confiável */
+:root {
+  /* Cores Primárias (Energia, Apetite) */
+  --primary-color: #D93025; /* Vermelho forte, como pimenta ou tomate */
+  --primary-color-dark: #B71C1C;
+  --primary-color-light: #FFCDD2;
+
+  /* Cores Secundárias (Felicidade, Aconchego) */
+  --secondary-color: #F2994A; /* Laranja/Amarelo, como queijo ou pão */
+  --secondary-color-dark: #E65100;
+
+  /* Cores de Sucesso (Fresco, Entregue) */
+  --success-color: #2E7D32; /* Verde escuro, como manjericão */
+  --success-color-light: #C8E6C9;
+
+  /* Cores de Fundo e Neutros (Limpeza, Base) */
+  --bg-color: #F5F5F5;      /* Cinza muito claro (fundo da página) */
+  --surface-color: #FFFFFF; /* Branco (cards, modais) */
+  --text-color: #333333;   /* Texto principal */
+  --text-color-light: #757575; /* Texto secundário, placeholders */
+  --border-color: #E0E0E0;   /* Divisórias e bordas */
+
+  /* Status dos Pedidos */
+  --status-preparing: #FFB74D; /* Laranja claro (Em preparo) */
+  --status-on-way: #4FC3F7;    /* Azul claro (A caminho) */
+  --status-delivered: #81C784; /* Verde claro (Entregue) */
+  --status-cancelled: #E57373; /* Vermelho claro (Cancelado) */
+}
