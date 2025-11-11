@@ -1,0 +1,39 @@
+.dashboard-container h1 {
+  margin-bottom: 24px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* Para Analytics */
+.stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.charts-grid {
+  margin-top: 20px;
+}
+
+/* Para ClientDashboard */
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.order-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.order-summary-item:last-child {
+  border-bottom: none;
+}
+.order-summary-item p {
+  color: var(--text-color-light);
+  font-size: 0.9rem;
+}

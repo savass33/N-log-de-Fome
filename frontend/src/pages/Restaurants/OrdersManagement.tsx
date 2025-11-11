@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IOrder, OrderStatus } from '../../interfaces/IOrder';
+import { type IOrder, type OrderStatus } from '../../interfaces/IOrder';
 import { orderService } from '../../services/orderService';
 import { Card } from '../../components/common/Card';
 import './OrdersManagement.css';

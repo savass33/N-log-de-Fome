@@ -1,44 +1,70 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import './Layout.css';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth"; // 1. Importar o hook
+import "./Layout.css";
 
-// SVGs como React Components (exemplo)
-// Você pode usar 'svgr' ou colar o SVG aqui
-const DashboardIcon = () => <svg>...</svg>;
-const OrderIcon = () => <svg>...</svg>; // Veja o exemplo de ícone no final
-const MenuIcon = () => <svg>...</svg>;
-
-// Mock de usuário. Isso viria do AuthContext
-const userRole = 'restaurant'; 
-
+// Definição das rotas para cada perfil
 const adminNav = [
-  { path: '/admin/dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
-  { path: '/admin/restaurants', label: 'Restaurantes', icon: <MenuIcon /> },
-  { path: '/admin/clients', label: 'Clientes', icon: <MenuIcon /> },
-  { path: '/admin/orders', label: 'Pedidos', icon: <OrderIcon /> },
+  { path: "/admin/dashboard", label: "Dashboard" },
+  { path: "/admin/restaurants", label: "Restaurantes" },
+  { path: "/admin/clients", label: "Clientes" },
+  { path: "/admin/orders", label: "Pedidos" },
+  { path: "/admin/analytics", label: "Analytics" },
+  { path: "/admin/support", label: "Suporte" },
 ];
 
 const restaurantNav = [
-  { path: '/restaurant/dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
-  { path: '/restaurant/orders', label: 'Pedidos', icon: <OrderIcon /> },
-  { path: '/restaurant/menu', label: 'Cardápio', icon: <MenuIcon /> },
+  { path: "/restaurant/dashboard", label: "Dashboard" },
+  { path: "/restaurant/orders", label: "Pedidos" },
+  { path: "/restaurant/menu", label: "Cardápio" },
+  { path: "/restaurant/my-restaurant", label: "Meu Restaurante" },
+  { path: "/restaurant/reviews", label: "Avaliações" },
+  { path: "/settings/account", label: "Configurações" },
+];
+
+const clientNav = [
+  { path: "/client/dashboard", label: "Início" },
+  { path: "/client/restaurants", label: "Restaurantes" },
+  { path: "/client/orders", label: "Meus Pedidos" },
+  { path: "/client/profile", label: "Meu Perfil" },
 ];
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
-  const navItems = userRole === 'admin' ? adminNav : restaurantNav;
+  const { user } = useAuth(); // 2. Usar o hook para saber o perfil
+
+  // 3. Escolher os links de navegação corretos
+  const getNavItems = () => {
+    switch (user?.role) {
+      case "admin":
+        return adminNav;
+      case "restaurant":
+        return restaurantNav;
+      case "client":
+        return clientNav;
+      default:
+        return [];
+    }
+  };
+
+  const navItems = getNavItems();
 
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        NLogDeFome
+        <Link to="/">NLogDeFome</Link>
       </div>
       <nav className="sidebar-nav">
         <ul>
           {navItems.map((item) => (
-            <li key={item.path} className={location.pathname === item.path ? 'active' : ''}>
+            // Compara o início do path para manter o item ativo
+            <li
+              key={item.path}
+              className={
+                location.pathname.startsWith(item.path) ? "active" : ""
+              }
+            >
               <Link to={item.path}>
-                {/* {item.icon} */}
                 <span>{item.label}</span>
               </Link>
             </li>

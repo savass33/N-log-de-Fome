@@ -1,0 +1,31 @@
+.error-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 60vh; /* Centraliza na view */
+  gap: 16px;
+}
+
+.error-page-container h1 {
+  font-size: 5rem;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.error-page-container h2 {
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.error-page-container p {
+  font-size: 1.1rem;
+  color: var(--text-color-light);
+  max-width: 400px;
+}
+
+.error-page-container .btn {
+  margin-top: 16px;
+  text-decoration: none;
+}

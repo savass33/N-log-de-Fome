@@ -1,29 +1,28 @@
-import { AppRoutes } from './routes/AppRoutes';
-import { Layout } from './components/layout/Layout';
+import { AppRoutes } from "./routes/AppRoutes";
+import { Layout } from "./components/layout/Layout";
+import { useAuth } from "./hooks/useAuth";
+import { Login } from "./pages/Auth/Login";
+import { Loader } from "./components/common/Loader";
 
 function App() {
-  // Lógica futura:
-  // Se não estiver logado, renderizar rotas de Auth
-  // Se estiver logado, renderizar o Layout + AppRoutes
-  
-  // Por enquanto, vamos renderizar o layout principal
-  
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    // Se estiver carregando (verificando token ou no login fake)
+    return <Loader />;
+  }
+
+  if (!user) {
+    // Se NÃO há usuário, mostre a tela de Login
+    return <Login />;
+  }
+
+  // Se HÁ usuário, mostre o Layout principal com as rotas do app
   return (
     <Layout>
       <AppRoutes />
     </Layout>
   );
-  
-  // Exemplo de como seria com autenticação:
-  // const { isAuthenticated } = useAuth();
-  // if (!isAuthenticated) {
-  //   return <AuthRoutes />;
-  // }
-  // return (
-  //   <Layout>
-  //     <AppRoutes />
-  //   </Layout>
-  // );
 }
 
 export default App;
