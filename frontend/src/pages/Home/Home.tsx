@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Home.css'; // Reutilizando o estilo
+import { Button } from '../../components/common/Button';
+import './Home.css'; // Estilo público
 
-// (Você pode querer extrair Header/Footer para componentes /layout/public)
+// Header Público (para Landing, About, Contact)
 const PublicHeader: React.FC = () => (
   <header className="public-header">
     <Link to="/" className="public-logo">NLogDeFome</Link>
@@ -14,31 +15,33 @@ const PublicHeader: React.FC = () => (
   </header>
 );
 
+// Footer Público
 const PublicFooter: React.FC = () => (
   <footer className="public-footer">
     <p>© 2025 NLogDeFome. Todos os direitos reservados.</p>
   </footer>
 );
 
-
-export const About: React.FC = () => {
+export const Landing: React.FC = () => {
   return (
     <div className="public-page-container">
       <PublicHeader />
       
       <main className="public-content">
+        <section className="hero-section">
+          <div className="hero-content">
+            <h1>Sua fome não espera.</h1>
+            <p>Os melhores restaurantes da sua cidade, na velocidade da sua fome.</p>
+            <Link to="/auth/login" className="btn-primary">Encontrar Restaurantes</Link>
+          </div>
+        </section>
+
         <section className="content-section">
-          <h2>Sobre a NLogDeFome</h2>
+          <h2>Como Funciona</h2>
           <p>
-            Nascemos da paixão por comida e tecnologia. Nossa missão é 
-            conectar restaurantes incríveis a clientes famintos, 
-            proporcionando uma experiência de delivery simples, rápida e confiável.
+            1. Escolha um restaurante. 2. Monte seu pedido. 3. Receba em casa.
           </p>
-          <p>
-            Para restaurantes, oferecemos uma plataforma robusta para gerenciamento
-            de cardápios, pedidos e visibilidade. Para clientes, oferecemos
-            um mundo de sabores a um clique de distância.
-          </p>
+          {/* [Image of simple order process icons] */}
         </section>
       </main>
 

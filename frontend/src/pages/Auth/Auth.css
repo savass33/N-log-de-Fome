@@ -63,9 +63,9 @@
 }
 
 .btn-client {
-  background-color: var(--success-color);
+  background-color: rgb(48, 60, 236);
   color: white;
 }
 .btn-client:hover {
-  background-color: var(--success-color); /* Você pode definir um dark */
+  background-color: rgb(23, 30, 123);
 }
