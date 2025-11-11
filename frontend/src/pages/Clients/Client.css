@@ -1,0 +1,201 @@
+/* --- Estilos Gerais da Página do Cliente --- */
+.client-page-container h1 {
+  margin-bottom: 24px;
+}
+.client-page-container p {
+  font-size: 1rem;
+  color: var(--text-color-light);
+  margin-bottom: 24px;
+}
+
+/* --- RestaurantsList.tsx --- */
+.restaurant-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.restaurant-card-link {
+  text-decoration: none;
+  color: var(--text-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.restaurant-card-link:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.07);
+}
+.restaurant-card-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+.restaurant-card-content h3 {
+  margin-bottom: 8px;
+}
+.restaurant-card-content p {
+  color: var(--text-color-light);
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+/* --- OrdersHistory.tsx --- */
+.orders-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.order-history-card .card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.order-history-info h3 {
+  margin-bottom: 8px;
+}
+.order-history-info p {
+  color: var(--text-color-light);
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+.order-history-status .btn {
+  margin-top: 8px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+/* --- Badge de Status (para OrdersHistory) --- */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #333;
+}
+.status-badge.status-pending { background-color: var(--status-preparing); }
+.status-badge.status-preparing { background-color: var(--status-preparing); }
+.status-badge.status-on_the_way { background-color: var(--status-on-way); color: white; }
+.status-badge.status-delivered { background-color: var(--status-delivered); }
+.status-badge.status-cancelled { background-color: var(--status-cancelled); }
+
+/* --- RestaurantMenu.tsx --- */
+.menu-page-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.menu-restaurant-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.menu-restaurant-info h1 {
+  margin-bottom: 8px;
+}
+.menu-restaurant-info p {
+  font-size: 1rem;
+  color: var(--text-color-light);
+  margin-bottom: 4px;
+}
+
+.menu-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.menu-item-card .card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.menu-item-info h3 {
+  margin-bottom: 4px;
+}
+.menu-item-info p {
+  font-size: 0.9rem;
+  color: var(--text-color-light);
+  margin-bottom: 8px;
+}
+.menu-item-info strong {
+  font-size: 1.1rem;
+  color: var(--text-color);
+}
+.menu-item-action .btn {
+  background-color: var(--success-color);
+}
+.menu-item-action .btn:hover {
+  background-color: var(--success-color-dark);
+}
+
+/* --- Checkout.tsx --- */
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 900px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checkout-form .form-group {
+  margin-bottom: 16px;
+}
+.checkout-form label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.checkout-form .input-field { /* Assumindo que Input.tsx renderiza isso */
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.order-summary-card h3 {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+.summary-item, .summary-total {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.summary-item span {
+  color: var(--text-color-light);
+}
+.summary-total {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+.checkout-button {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1rem;
+}
+
+/* --- ClientProfile.tsx --- */
+.profile-form-container {
+  max-width: 600px;
+}
+.profile-form .form-group {
+  margin-bottom: 16px;
+}
+.profile-form label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.profile-form .input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
