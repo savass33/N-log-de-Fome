@@ -1,10 +1,9 @@
 import React from "react";
 import { StatsCard } from "../../components/dashboard/StatsCard";
 import { Card } from "../../components/common/Card";
-import { Button } from "../../components/common/Button";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import "../Dashboard/Dashboard.css"; // Reutilizando o CSS do dashboard
+import "../Admin/Dashboard.css"; // Reutilizando o CSS do dashboard
 
 // Mock de dados
 const mockPendingOrders = [

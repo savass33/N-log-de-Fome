@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { type IRestaurant } from "../../interfaces/IRestaurant";
-// import { restaurantService } from '../../services/restaurantService';
 import { Loader } from "../../components/common/Loader";
 import { Button } from "../../components/common/Button";
 import "./Admin.css"; // CSS comum para páginas de admin
 
-// Mock de dados (o service faria isso)
 const mockRestaurants: IRestaurant[] = [
   {
     id: "r1",
@@ -56,7 +54,7 @@ export const RestaurantsList: React.FC = () => {
   return (
     <div className="admin-page-container">
       <h1>Gerenciamento de Restaurantes</h1>
-      <Button className="btn-add-new">Adicionar Novo Restaurante</Button>
+      <Button className="btn">Adicionar Novo Restaurante</Button>
 
       <table className="admin-table">
         <thead>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Card } from '../../components/common/Card';
-import { Input } from '../../components/common/Input';
-import { Button } from '../../components/common/Button';
+import { Card } from '../../../components/common/Card';
+import { Button } from '../../../components/common/Button';
+import { Input } from '../../../components/common/Input';
 import './Settings.css'; // CSS novo para as páginas de Configurações
 
 // Mock de dados (viria do useAuth())

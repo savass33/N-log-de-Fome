@@ -21,7 +21,7 @@
   --border-color: #E0E0E0;   /* Divisórias e bordas */
 
   /* Status dos Pedidos */
-  --status-preparing: #FFB74D; /* Laranja claro (Em preparo) */
+  --status-preparing: #ffa23e; /* Laranja claro (Em preparo) */
   --status-on-way: #4FC3F7;    /* Azul claro (A caminho) */
   --status-delivered: #81C784; /* Verde claro (Entregue) */
   --status-cancelled: #E57373; /* Vermelho claro (Cancelado) */

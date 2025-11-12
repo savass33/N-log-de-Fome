@@ -5,9 +5,9 @@ import { type IOrder } from "../../interfaces/IOrder";
 import { Loader } from "../../components/common/Loader";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { formatDate } from "../../utils/formatDate";
-import "./Admin.css"; // Reutilizando e atualizando o Admin.css
+import "../Admin/Admin.css"; // Reutilizando e atualizando o Admin.css
 
-// Mock de dados (um service buscaria isso pelo ID)
+
 const mockOrder: IOrder = {
   id: "1001",
   clientId: "c1",

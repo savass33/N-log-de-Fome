@@ -1,8 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { PrivateRoute } from './PrivateRoute';
-// Correção: Se a pasta 'hooks' também estiver dentro de 'pages', o caminho seria este:
-// Se 'hooks' estiver na raiz 'src/', o caminho '../../hooks/useAuth' estaria correto,
-// mas vou tentar este, já que todos os caminhos falharam.
 import { useAuth } from '../hooks/useAuth';
 
 // --- Dashboards ---
@@ -15,16 +12,13 @@ import { RestaurantsList as AdminRestaurantsList } from '../pages/Admin/Restaura
 import { ClientsList } from '../pages/Admin/ClientsList';
 import { OrdersList as AdminOrdersList } from '../pages/Admin/OrdersList';
 import { OrderDetails } from '../pages/Clients/OrdersDetails';
-import { Analytics } from '../pages/Admin/Analytics';
 import { AdminSettings } from '../pages/Admin/AdminSettings';
-import { SupportCenter } from '../pages/Admin/SupportCenter';
 
 // --- Páginas de Restaurante ---
 import { MyRestaurant } from '../pages/Restaurants/MyRestaurant';
 import { MenuManagement } from '../pages/Restaurants/MenuManagement';
 import { OrdersManagement } from '../pages/Restaurants/OrdersManagement';
 import { RestaurantSettings } from '../pages/Restaurants/RestaurantSettings';
-import { Reviews } from '../pages/Restaurants/Reviews';
 
 // --- Páginas de Cliente ---
 import { RestaurantsList as ClientRestaurantsList } from '../pages/Clients/RestaurantList';
@@ -69,11 +63,8 @@ export const AppRoutes = () => {
         <Route path="/admin/restaurants" element={<AdminRestaurantsList />} />
         <Route path="/admin/clients" element={<ClientsList />} />
         <Route path="/admin/orders" element={<AdminOrdersList />} />
-        <Route path="/admin/orders/:id" element={<OrderDetails />} />{' '}
-        {/* ROTA DE DETALHE */}
-        <Route path="/admin/analytics" element={<Analytics />} />
+        <Route path="/admin/orders/:id" element={<OrderDetails />} />{' '}        
         <Route path="/admin/settings" element={<AdminSettings />} />
-        <Route path="/admin/support" element={<SupportCenter />} />
       </Route>
 
       {/* --- ROTAS DE RESTAURANTE (Protegidas) --- */}
@@ -85,7 +76,6 @@ export const AppRoutes = () => {
         <Route path="/restaurant/my-restaurant" element={<MyRestaurant />} />
         <Route path="/restaurant/orders" element={<OrdersManagement />} />
         <Route path="/restaurant/menu" element={<MenuManagement />} />
-        <Route path="/restaurant/reviews" element={<Reviews />} />
         <Route
           path="/restaurant/settings"
           element={<RestaurantSettings />}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card } from '../../components/common/Card';
-import { Button } from '../../components/common/Button';
+import { Card } from '../../../components/common/Card';
+import { Button } from '../../../components/common/Button';
 import './Settings.css'; // Reutilizando o CSS de Configurações
 
 export const Preferences: React.FC = () => {

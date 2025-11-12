@@ -39,7 +39,7 @@ export const MenuManagement: React.FC = () => {
     <div className="restaurant-page-container">
       <div className="restaurant-page-header">
         <h1>Gerenciamento do Cardápio</h1>
-        <Button onClick={handleAddItem} className="btn-add-new">
+        <Button onClick={handleAddItem} className="btn">
           Adicionar Novo Item
         </Button>
       </div>
@@ -52,15 +52,14 @@ export const MenuManagement: React.FC = () => {
         <div className="menu-items-list">
           {menuItems.map(item => (
             <Card key={item.id} className="menu-item-card">
-              <img src={item.imageUrl} alt={item.name} className="menu-item-image" />
               <div className="menu-item-details">
                 <h3>{item.name}</h3>
                 <p>{item.description}</p>
                 <strong>{formatCurrency(item.price)}</strong>
               </div>
-              <div className="menu-item-actions">
+              <div className="menu-item-actions"> 
                 <Button onClick={() => handleEditItem(item.id)}>Editar</Button>
-                <Button onClick={() => handleDeleteItem(item.id)} className="btn-danger">
+                <Button onClick={() => handleDeleteItem(item.id)} className="btn">
                   Remover
                 </Button>
               </div>

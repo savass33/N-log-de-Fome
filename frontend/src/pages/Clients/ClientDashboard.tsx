@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
 import { Link } from "react-router-dom";
-import "../Dashboard/Dashboard.css"; // Reutilizando o CSS do dashboard
+import "../Admin/Dashboard.css"; // Reutilizando o CSS do dashboard
 
 // Mock de dados para esta página
 const mockRecentOrders = [

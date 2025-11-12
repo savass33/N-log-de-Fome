@@ -18,8 +18,7 @@ const restaurantNav = [
   { path: "/restaurant/orders", label: "Pedidos" },
   { path: "/restaurant/menu", label: "Cardápio" },
   { path: "/restaurant/my-restaurant", label: "Meu Restaurante" },
-  { path: "/restaurant/reviews", label: "Avaliações" },
-  { path: "/settings/account", label: "Configurações" },
+  { path: "/settings/account", label: "Configurações" }, // Tirar?
 ];
 
 const clientNav = [
