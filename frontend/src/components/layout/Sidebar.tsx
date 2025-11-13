@@ -9,8 +9,6 @@ const adminNav = [
   { path: "/admin/restaurants", label: "Restaurantes" },
   { path: "/admin/clients", label: "Clientes" },
   { path: "/admin/orders", label: "Pedidos" },
-  { path: "/admin/analytics", label: "Analytics" },
-  { path: "/admin/support", label: "Suporte" },
 ];
 
 const restaurantNav = [

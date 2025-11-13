@@ -10,10 +10,6 @@ const mockPendingOrders = [
   { id: "1001", clientName: "Ana Silva", total: 55.5 },
   { id: "1002", clientName: "Bruno Costa", total: 80.0 },
 ];
-const mockReviews = [
-  { clientName: "Carla Dias", rating: 5, comment: "Melhor açaí!" },
-];
-
 export const RestaurantDashboard: React.FC = () => {
   const { user } = useAuth();
 
@@ -29,7 +25,6 @@ export const RestaurantDashboard: React.FC = () => {
           value={mockPendingOrders.length.toString()}
         />
         <StatsCard title="Vendas (Hoje)" value="R$ 450,80" />
-        <StatsCard title="Nota Média" value="4.8 ★" />
       </div>
 
       <div className="dashboard-grid main-grid">
@@ -41,7 +36,7 @@ export const RestaurantDashboard: React.FC = () => {
                 <strong>Pedido #{order.id}</strong>
                 <p>Cliente: {order.clientName}</p>
               </div>
-              <Link to="/app/restaurant/orders" className="btn-login">
+              <Link to="/restaurant/orders" className="btn-login">
                 Ver Pedido
               </Link>
             </div>
@@ -49,22 +44,6 @@ export const RestaurantDashboard: React.FC = () => {
           {mockPendingOrders.length === 0 && (
             <p>Nenhum pedido novo no momento.</p>
           )}
-        </Card>
-
-        {/* 3. Última Avaliação */}
-        <Card title="Última Avaliação" className="quick-access-card">
-          {mockReviews.map((review, i) => (
-            <div key={i} className="review-summary">
-              <strong>{review.clientName}:</strong>
-              <p>
-                "{review.comment}" ({review.rating} ★)
-              </p>
-            </div>
-          ))}
-
-          <Link to={"/app/restaurant/reviews"} className="btn-login">
-            Ver todas
-          </Link>
         </Card>
       </div>
     </div>
