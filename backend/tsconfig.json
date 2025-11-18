@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", /* Define a versão do JavaScript para a qual o código será compilado */
+    "module": "CommonJS", /* Define o sistema de módulos (essencial para Express/Node.js clássico) */
+    "moduleResolution": "node", /* Como o TS encontra os módulos */
+    
+    "outDir": "./dist", /* Onde o JavaScript compilado irá ficar */
+    "rootDir": "./src", /* Onde o seu código TypeScript de origem está */
+    
+    "sourceMap": true, /* Ajuda a depurar, mapeando o .js de volta para o .ts */
+    "esModuleInterop": true, /* Permite compatibilidade entre CommonJS e ES Modules */
+    "forceConsistentCasingInFileNames": true, /* Evita bugs em sistemas case-sensitive */
+    
+    "strict": true, /* Ativa todas as verificações de tipo estritas (recomendado) */
+    "skipLibCheck": true /* Poupa tempo ao não verificar os tipos dos ficheiros de definição (.d.ts) */
+  },
+  "include": ["src/**/*"], /* Diz ao TypeScript para compilar apenas a pasta src */
+  "exclude": ["node_modules"] /* Ignora a pasta node_modules */
+}
