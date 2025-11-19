@@ -13,6 +13,7 @@ model cliente {
   nome       String?  @db.VarChar(100)
   telefone   String?  @db.VarChar(15)
   endereco   String?  @db.VarChar(100)
+  email      String?  @db.VarChar(100)
   pedido     pedido[]
 }
 

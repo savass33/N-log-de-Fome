@@ -8,7 +8,8 @@ CREATE TABLE CLIENTE(
 	id_cliente INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100),
     telefone VARCHAR(15),
-    endereco VARCHAR(100)
+    endereco VARCHAR(100),
+    email VARCHAR(100)
 );
 
 	-- Restaurante OK
