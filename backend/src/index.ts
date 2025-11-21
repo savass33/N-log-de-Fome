@@ -1,37 +1,50 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+// Se o VS Code marcar erro aqui, mude para '@prisma/client'
 import { PrismaClient } from './generated/prisma/client';
 
-// Inicializa o Express e o Prisma
 const app = express();
 const prisma = new PrismaClient();
 
-// Configura middlewares
-app.use(cors()); // Permite que o frontend (Vite) aceda a esta API
-app.use(express.json()); // Permite-nos ler o 'body' de pedidos POST em JSON
+app.use(cors());
+app.use(express.json());
 
-// --- A SUA API COMEÇA AQUI ---
-
-// Rota de Teste (para ver se funciona)
+// --- ROTA DE TESTE ---
 app.get('/api/teste', (req, res) => {
   res.json({ message: '🎉 Backend N-log-de-Fome está a funcionar!' });
 });
 
-// Rota para LER todos os Clientes (exemplo com Prisma)
+// --- ROTA DE CLIENTES ---
 app.get('/api/clientes', async (req, res) => {
   try {
-    // Tente escrever 'prisma.' e veja o autocomplete!
-    const clientes = await prisma.cliente.findMany(); 
+    const clientes = await prisma.cliente.findMany();
     res.json(clientes);
   } catch (error) {
-    res.status(500).json({ error: 'Não foi possível buscar os clientes' });
+    // O ERRO VERMELHO VAI APARECER AQUI NO TERMINAL
+    console.error("❌ ERRO CRÍTICO NO PRISMA (CLIENTES):", error);
+    res.status(500).json({ 
+      error: 'Não foi possível buscar os clientes', 
+      details: String(error) 
+    });
   }
 });
 
-// --- FIM DA API ---
+// --- ROTA DE RESTAURANTES ---
+app.get('/api/restaurantes', async (req, res) => {
+  try {
+    const restaurantes = await prisma.restaurante.findMany();
+    res.json(restaurantes);
+  } catch (error) {
+    console.error("❌ ERRO CRÍTICO NO PRISMA (RESTAURANTES):", error);
+    res.status(500).json({ 
+      error: 'Não foi possível buscar os restaurantes', 
+      details: String(error) 
+    });
+  }
+});
 
-// Inicia o servidor
-const PORT = 3001; // Usamos 3001 para não chocar com o Vite (que usa 5173)
+const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend a correr em http://localhost:${PORT}`);
 });

@@ -1,4 +1,7 @@
 import axios from 'axios';
+
+// DAO BASE: Configuração da conexão HTTP
 export const api = axios.create({
-  baseURL: 'http://localhost:8080/api/v1', // Seu futuro backend
+  // Aponta para a porta 3001 onde o seu servidor Express/Prisma está a rodar
+  baseURL: 'http://localhost:3001/api', 
 });
