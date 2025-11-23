@@ -21,7 +21,7 @@
 }
 .restaurant-card-link:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0,0,0,0.07);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.07);
 }
 .restaurant-card-image {
   width: 100%;
@@ -70,64 +70,199 @@
   font-size: 0.8rem;
   color: #333;
 }
-.status-badge.status-pending { background-color: var(--status-preparing); }
-.status-badge.status-preparing { background-color: var(--status-preparing); }
-.status-badge.status-on_the_way { background-color: var(--status-on-way); color: white; }
-.status-badge.status-delivered { background-color: var(--status-delivered); }
-.status-badge.status-cancelled { background-color: var(--status-cancelled); }
+.status-badge.status-pending {
+  background-color: var(--status-preparing);
+}
+.status-badge.status-preparing {
+  background-color: var(--status-preparing);
+}
+.status-badge.status-on_the_way {
+  background-color: var(--status-on-way);
+  color: white;
+}
+.status-badge.status-delivered {
+  background-color: var(--status-delivered);
+}
+.status-badge.status-cancelled {
+  background-color: var(--status-cancelled);
+}
 
 /* --- RestaurantMenu.tsx --- */
+.menu-page-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Cardápio (esq) | Carrinho (dir) */
+  gap: 30px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .menu-page-layout {
+    grid-template-columns: 1fr; /* Empilha no mobile */
+  }
+
+  /* No mobile, o carrinho vira uma barra fixa embaixo */
+  .cart-sidebar {
+    display: none;
+  }
+}
+
+/* Header do Restaurante */
 .menu-page-header {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   gap: 24px;
   margin-bottom: 32px;
 }
+
 .menu-restaurant-image {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
-.menu-restaurant-info h1 {
-  margin-bottom: 8px;
-}
-.menu-restaurant-info p {
-  font-size: 1rem;
-  color: var(--text-color-light);
-  margin-bottom: 4px;
+  border-radius: 12px;
 }
 
+.menu-restaurant-info h1 {
+  margin: 0 0 8px 0;
+  font-size: 2rem;
+  color: #333;
+}
+
+/* Grid de Itens */
 .menu-item-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 16px;
 }
-.menu-item-card .card-content {
+
+.menu-item-card {
+  display: flex;
+  flex-direction: row; /* Imagem lado a lado */
+  border: 1px solid #eee;
+  transition: all 0.2s;
+  overflow: hidden;
+}
+
+.menu-item-card:hover {
+  border-color: #ddd;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.menu-item-content {
+  flex: 1;
+  padding-right: 16px;
+}
+
+.menu-item-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-left: 16px;
+}
+
+.menu-item-price {
+  color: var(--success-color);
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: block;
+  margin-top: 8px;
+}
+
+/* Controles de Quantidade */
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-qty {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  color: #e63946;
+  transition: 0.2s;
+}
+
+.btn-qty:hover {
+  background-color: #ffe5e7;
+  border-color: #e63946;
+}
+
+.qty-value {
+  font-weight: 600;
+  font-size: 1rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* --- Sidebar do Carrinho (Desktop) --- */
+.cart-sidebar {
+  position: sticky;
+  top: 20px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.cart-sidebar h3 {
+  margin-bottom: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.cart-item-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.cart-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+  color: #333;
+}
+
+/* --- Barra Flutuante (Mobile) --- */
+.cart-floating-action {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 16px 24px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-.menu-item-info h3 {
-  margin-bottom: 4px;
-}
-.menu-item-info p {
-  font-size: 0.9rem;
-  color: var(--text-color-light);
-  margin-bottom: 8px;
-}
-.menu-item-info strong {
-  font-size: 1.1rem;
-  color: var(--text-color);
-}
-.menu-item-action .btn {
-  background-color: var(--success-color);
-}
-.menu-item-action .btn:hover {
-  background-color: var(--success-color-dark);
+  z-index: 100;
+  border-top: 1px solid #eee;
 }
 
+@media (min-width: 901px) {
+  .cart-floating-action {
+    display: none; /* Esconde no desktop pois já tem a sidebar */
+  }
+}
 /* --- Checkout.tsx --- */
 .checkout-grid {
   display: grid;
@@ -140,6 +275,25 @@
   }
 }
 
+.checkout-button {
+  width: 32px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #e63946;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+  transition: 0.2s;
+}
+
+.checkout-button:hover {
+  background-color: #c50010;
+}
+
 .checkout-form .form-group {
   margin-bottom: 16px;
 }
@@ -148,7 +302,7 @@
   font-weight: 500;
   margin-bottom: 8px;
 }
-.checkout-form .input-field { /* Assumindo que Input.tsx renderiza isso */
+.checkout-form .input-field {
   width: 100%;
   padding: 10px;
   border: 1px solid var(--border-color);
@@ -160,7 +314,8 @@
   padding-bottom: 12px;
   margin-bottom: 16px;
 }
-.summary-item, .summary-total {
+.summary-item,
+.summary-total {
   display: flex;
   justify-content: space-between;
   margin-bottom: 12px;

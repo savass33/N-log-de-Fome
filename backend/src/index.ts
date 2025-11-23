@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { PrismaClient } from "./generated/prisma/client";
+import { PrismaClient, Prisma } from "./generated/prisma/client";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -9,10 +9,16 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
-// Helper para erros genéricos (não trata mais duplicidade automática, pois faremos manual)
+// Helper para erros genéricos
 const handlePrismaError = (error: any, res: any) => {
   console.error("Erro Prisma:", error);
-  // Se ainda ocorrer algum erro de banco não previsto
+  // Erro de registro duplicado (P2002) - tratado manualmente nas rotas, mas bom ter fallback
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  ) {
+    return res.status(409).json({ error: "Dados duplicados no sistema." });
+  }
   res
     .status(500)
     .json({ error: "Erro interno do servidor.", details: String(error) });
@@ -54,13 +60,11 @@ app.post("/api/admins", async (req, res) => {
   const { nome, telefone, email } = req.body;
 
   try {
-    // VALIDAÇÃO: Email já existe?
     const existe = await prisma.admin.findFirst({ where: { email } });
-    if (existe) {
+    if (existe)
       return res
         .status(409)
         .json({ error: "Este e-mail de administrador já está em uso." });
-    }
 
     const novoAdmin = await prisma.admin.create({
       data: { nome, telefone, email },
@@ -76,21 +80,13 @@ app.put("/api/admins/:id", async (req, res) => {
   const { nome, telefone, email } = req.body;
 
   try {
-    // VALIDAÇÃO NO UPDATE: Email já existe em OUTRO admin?
     const existeOutro = await prisma.admin.findFirst({
-      where: {
-        email: email,
-        NOT: { id_admin: id }, // Ignora o próprio usuário (se ele não mudou o email)
-      },
+      where: { email: email, NOT: { id_admin: id } },
     });
-
-    if (existeOutro) {
-      return res
-        .status(409)
-        .json({
-          error: "Este e-mail já está sendo usado por outro administrador.",
-        });
-    }
+    if (existeOutro)
+      return res.status(409).json({
+        error: "Este e-mail já está sendo usado por outro administrador.",
+      });
 
     const adminAtualizado = await prisma.admin.update({
       where: { id_admin: id },
@@ -132,13 +128,11 @@ app.post("/api/clientes", async (req, res) => {
   const { nome, telefone, endereco, email } = req.body;
 
   try {
-    // VALIDAÇÃO: Email duplicado
     const existeEmail = await prisma.cliente.findFirst({ where: { email } });
-    if (existeEmail) {
+    if (existeEmail)
       return res
         .status(409)
         .json({ error: "Já existe um cliente cadastrado com este e-mail." });
-    }
 
     const novoCliente = await prisma.cliente.create({
       data: { nome, telefone, endereco, email },
@@ -154,19 +148,13 @@ app.put("/api/clientes/:id", async (req, res) => {
   const { nome, telefone, endereco, email } = req.body;
 
   try {
-    // VALIDAÇÃO: Email duplicado em outro cliente
     const existeOutro = await prisma.cliente.findFirst({
-      where: {
-        email,
-        NOT: { id_cliente: id },
-      },
+      where: { email, NOT: { id_cliente: id } },
     });
-
-    if (existeOutro) {
+    if (existeOutro)
       return res
         .status(409)
         .json({ error: "Este e-mail já pertence a outro cliente." });
-    }
 
     const clienteAtualizado = await prisma.cliente.update({
       where: { id_cliente: id },
@@ -181,19 +169,16 @@ app.put("/api/clientes/:id", async (req, res) => {
 app.delete("/api/clientes/:id", async (req, res) => {
   const id = Number(req.params.id);
   try {
-    // Como não tem cascade no banco, verificamos manualmente os pedidos
+    // Validação manual pois o banco não está com Cascade configurado (assumindo sua preferência anterior)
+    // Se tiver Cascade, isso aqui é redundante mas seguro.
     const temPedidos = await prisma.pedido.findFirst({
       where: { id_cliente_fk: id },
     });
-
-    if (temPedidos) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Não é possível excluir: Este cliente possui pedidos registrados.",
-        });
-    }
+    if (temPedidos)
+      return res.status(400).json({
+        error:
+          "Não é possível excluir: Este cliente possui pedidos registrados.",
+      });
 
     await prisma.cliente.delete({ where: { id_cliente: id } });
     res.json({ message: "Cliente deletado com sucesso." });
@@ -232,7 +217,6 @@ app.post("/api/restaurantes", async (req, res) => {
   const { nome, telefone, tipo_cozinha, email, endereco } = req.body;
 
   try {
-    // VALIDAÇÃO DUPLA: Nome E Email
     const existeNome = await prisma.restaurante.findFirst({ where: { nome } });
     if (existeNome)
       return res
@@ -261,7 +245,6 @@ app.put("/api/restaurantes/:id", async (req, res) => {
   const { nome, telefone, tipo_cozinha, email, endereco } = req.body;
 
   try {
-    // VALIDAÇÃO DUPLA NO UPDATE
     const existeNome = await prisma.restaurante.findFirst({
       where: { nome, NOT: { id_restaurante: id } },
     });
@@ -291,7 +274,6 @@ app.put("/api/restaurantes/:id", async (req, res) => {
 app.delete("/api/restaurantes/:id", async (req, res) => {
   const id = Number(req.params.id);
   try {
-    // Verificação manual de dependência
     const temPedidos = await prisma.pedido.findFirst({
       where: { id_restaurante_fk: id },
     });
@@ -366,6 +348,18 @@ app.get("/api/pedidos/:id", async (req, res) => {
 app.post("/api/pedidos", async (req, res) => {
   const { id_cliente_fk, id_restaurante_fk, itens } = req.body;
 
+  // Validação básica para não quebrar o banco
+  if (!id_cliente_fk || !id_restaurante_fk) {
+    return res
+      .status(400)
+      .json({ error: "IDs de cliente e restaurante são obrigatórios." });
+  }
+  if (!itens || !Array.isArray(itens) || itens.length === 0) {
+    return res
+      .status(400)
+      .json({ error: "O pedido deve conter pelo menos um item." });
+  }
+
   try {
     const novoPedido = await prisma.pedido.create({
       data: {
@@ -375,9 +369,9 @@ app.post("/api/pedidos", async (req, res) => {
         status_pedido: "Pendente",
         itempedido: {
           create: itens.map((item: any) => ({
-            descri__o: item.descricao,
-            quantidade: item.quantidade,
-            preco: item.preco,
+            descri__o: item.descricao || "Item sem nome", // Fallback seguro
+            quantidade: Number(item.quantidade),
+            preco: Number(item.preco),
           })),
         },
       },
@@ -390,7 +384,16 @@ app.post("/api/pedidos", async (req, res) => {
 });
 
 app.put("/api/pedidos/:id", async (req, res) => {
+  const id = Number(req.params.id);
   const { status_pedido } = req.body;
+
+  console.log(`--- DEBUG PUT PEDIDO ---`);
+  console.log(`ID: ${id}`);
+  console.log(`Recebido do Front: ${status_pedido}`);
+
+  if (!status_pedido)
+    return res.status(400).json({ error: "Status é obrigatório." });
+
   const statusMap: Record<string, string> = {
     pending: "Pendente",
     preparing: "Preparando",
@@ -398,15 +401,23 @@ app.put("/api/pedidos/:id", async (req, res) => {
     delivered: "Entregue",
     canceled: "Cancelado",
   };
-  const statusParaBanco = statusMap[status_pedido] || status_pedido;
 
+  // Normaliza para evitar erro de case sensitive
+  const key = String(status_pedido).toLowerCase();
+  const statusParaBanco = statusMap[key] || status_pedido; // Tenta mapear, senão usa original
+
+  console.log(`Tentando salvar no Prisma: ${statusParaBanco}`);
   try {
     const pedidoAtualizado = await prisma.pedido.update({
-      where: { id_pedido: Number(req.params.id) },
+      where: { id_pedido: id },
       data: { status_pedido: statusParaBanco as any },
     });
+    console.log(
+      `Sucesso! Novo status no banco: ${pedidoAtualizado.status_pedido}`
+    );
     res.json(pedidoAtualizado);
   } catch (error) {
+    console.error("ERRO PRISMA:", error); // Isso vai te dizer exatamente o porquê
     handlePrismaError(error, res);
   }
 });
@@ -432,7 +443,6 @@ app.post("/api/cardapio", async (req, res) => {
     req.body;
 
   try {
-    // VALIDAÇÃO: Nome do prato já existe no mesmo restaurante?
     const existePrato = await prisma.item_cardapio.findFirst({
       where: {
         id_restaurante_fk: Number(id_restaurante_fk),
@@ -440,11 +450,10 @@ app.post("/api/cardapio", async (req, res) => {
       },
     });
 
-    if (existePrato) {
+    if (existePrato)
       return res
         .status(409)
         .json({ error: "Você já tem um item com este nome no cardápio." });
-    }
 
     const novoItem = await prisma.item_cardapio.create({
       data: {

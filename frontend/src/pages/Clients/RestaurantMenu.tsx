@@ -3,51 +3,54 @@ import { useParams, useNavigate } from "react-router-dom";
 import { type IMenuItem } from "../../interfaces/IMenuItem";
 import { type IRestaurant } from "../../interfaces/IRestaurant";
 import { restaurantService } from "../../services/restaurantService";
+import { menuService } from "../../services/menuService";
 import { Card } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
 import { Loader } from "../../components/common/Loader";
-import { formatCurrency } from "../../utils/formatCurrency"; // Importante
+import { formatCurrency } from "../../utils/formatCurrency";
 import "./Client.css";
-import { menuService } from "../../services/menuService";
+
+interface CartItem {
+  item: IMenuItem;
+  qty: number;
+}
 
 export const RestaurantMenu: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [restaurant, setRestaurant] = useState<IRestaurant | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [cart, setCart] = useState<{ item: IMenuItem; qty: number }[]>([]);
   const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Carrinho Local
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     if (id) {
-      loadRestaurant(id);
-      loadMenu(id);
+      loadData(id);
     }
   }, [id]);
 
-  const loadMenu = async (restId: string) => {
+  const loadData = async (restId: string) => {
+    setIsLoading(true);
     try {
-      const data = await menuService.getMenuByRestaurant(restId);
-      setMenuItems(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const loadRestaurant = async (restId: string) => {
-    try {
-      const data = await restaurantService.getRestaurantById(restId);
-      setRestaurant(data);
+      const [restData, menuData] = await Promise.all([
+        restaurantService.getRestaurantById(restId),
+        menuService.getMenuByRestaurant(restId),
+      ]);
+      setRestaurant(restData);
+      setMenuItems(menuData);
     } catch (error) {
       console.error(error);
-      alert("Erro ao carregar restaurante.");
+      alert("Erro ao carregar dados do restaurante.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAddItem = (item: IMenuItem) => {
+  // Adiciona ou Incrementa
+  const handleIncrement = (item: IMenuItem) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.item.id === item.id);
       if (existing) {
@@ -59,7 +62,33 @@ export const RestaurantMenu: React.FC = () => {
     });
   };
 
+  // Decrementa ou Remove
+  const handleDecrement = (itemId: string) => {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.item.id === itemId);
+      if (existing?.qty === 1) {
+        return prev.filter((i) => i.item.id !== itemId); // Remove se for 0
+      }
+      return prev.map((i) =>
+        i.item.id === itemId ? { ...i, qty: i.qty - 1 } : i
+      );
+    });
+  };
+
+  // Pega quantidade atual de um item no carrinho
+  const getQty = (itemId: string) => {
+    return cart.find((i) => i.item.id === itemId)?.qty || 0;
+  };
+
+  // Cálculos de totais
+  const cartTotal = cart.reduce(
+    (acc, curr) => acc + curr.item.price * curr.qty,
+    0
+  );
+  const cartCount = cart.reduce((acc, curr) => acc + curr.qty, 0);
+
   const handleGoToCheckout = () => {
+    if (cart.length === 0) return;
     navigate("/client/checkout", {
       state: {
         cartItems: cart,
@@ -74,49 +103,142 @@ export const RestaurantMenu: React.FC = () => {
 
   return (
     <div className="client-page-container">
+      {/* Cabeçalho do Restaurante */}
       <div className="menu-page-header">
         <div className="menu-restaurant-info">
           <h1>{restaurant.name}</h1>
           <p>
             {restaurant.cuisineType} • {restaurant.address}
           </p>
-          <p>Aberto das {restaurant.openingHours}</p>
+          <p style={{ color: "#28a745", fontWeight: "600" }}>
+            Aberto • Fecha às {restaurant.openingHours.split("-")[1]}
+          </p>
         </div>
       </div>
 
-      <h2>Cardápio</h2>
+      <div className="menu-page-layout">
+        {/* Coluna da Esquerda: Itens do Cardápio */}
+        <div className="menu-section">
+          <h2 style={{ marginBottom: "20px" }}>Cardápio</h2>
 
-      <div className="menu-item-list">
-        {menuItems.length === 0 ? (
-          <div style={{textAlign: 'center', color: '#666', padding: '20px'}}>
-             Este restaurante ainda não cadastrou itens no cardápio.
+          <div className="menu-item-list">
+            {menuItems.length === 0 ? (
+              <p style={{ color: "#777" }}>
+                Nenhum item disponível no momento.
+              </p>
+            ) : (
+              menuItems.map((item) => {
+                const qty = getQty(item.id);
+
+                return (
+                  <Card key={item.id} className="menu-item-card">
+                    {/* Informações */}
+                    <div className="menu-item-content">
+                      <h3>{item.name}</h3>
+                      <p
+                        style={{
+                          fontSize: "0.9rem",
+                          color: "#666",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        {item.description}
+                      </p>
+                      <span className="menu-item-price">
+                        {formatCurrency(item.price)}
+                      </span>
+
+                      {/* Controles de Quantidade */}
+                      {qty === 0 ? (
+                        <Button
+                          onClick={() => handleIncrement(item)}
+                          style={{
+                            marginTop: "10px",
+                            fontSize: "0.85rem",
+                            padding: "8px 16px",
+                          }}
+                        >
+                          Adicionar
+                        </Button>
+                      ) : (
+                        <div className="quantity-control">
+                          <button
+                            className="btn-qty"
+                            onClick={() => handleDecrement(item.id)}
+                          >
+                            -
+                          </button>
+                          <span className="qty-value">{qty}</span>
+                          <button
+                            className="btn-qty"
+                            onClick={() => handleIncrement(item)}
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })
+            )}
           </div>
-        ) : (
-          menuItems.map((item) => (
-            // CORREÇÃO: Removi 'children={undefined}' e coloquei o conteúdo dentro
-            <Card key={item.id} className="menu-item-card">
-              <div className="menu-item-info">
-                <h3>{item.name}</h3>
-                <p>{item.description}</p>
-                <span className="item-category-badge">{item.category}</span>
-                <strong style={{display: 'block', marginTop: '8px'}}>
-                    {formatCurrency(item.price)}
-                </strong>
+        </div>
+
+        {/* Coluna da Direita: Resumo do Pedido (Desktop) */}
+        <div className="cart-sidebar">
+          <h3 style={{ color: "#e63946" }}>Seu Pedido</h3>
+
+          {cart.length === 0 ? (
+            <p
+              style={{ color: "#999", textAlign: "center", padding: "20px 0" }}
+            >
+              Seu carrinho está vazio. Adicione itens do menu.
+            </p>
+          ) : (
+            <>
+              <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                {cart.map((row) => (
+                  <div key={row.item.id} className="cart-item-row">
+                    <span>
+                      {row.qty}x {row.item.name}
+                    </span>
+                    <span>{formatCurrency(row.item.price * row.qty)}</span>
+                  </div>
+                ))}
               </div>
-              <div className="menu-item-action">
-                <Button onClick={() => handleAddItem(item)}>Adicionar</Button>
+
+              <div className="cart-total-row">
+                <span>Total</span>
+                <span>{formatCurrency(cartTotal)}</span>
               </div>
-            </Card>
-          ))
-        )}
+
+              <Button
+                onClick={handleGoToCheckout}
+                style={{ width: "100%", marginTop: "20px" }}
+              >
+                Continuar
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Botão flutuante do carrinho */}
-      {cart.length > 0 && (
+      {/* Barra Flutuante (Mobile) - Só aparece se tiver itens */}
+      {cartCount > 0 && (
         <div className="cart-floating-action">
-          <span>{cart.reduce((acc, i) => acc + i.qty, 0)} itens no carrinho</span>
-          <Button onClick={handleGoToCheckout} style={{backgroundColor: '#fff', color: '#e63946'}}>
-             Ir para Pagamento
+          <div>
+            <span
+              style={{ display: "block", fontSize: "0.9rem", color: "#666" }}
+            >
+              Total
+            </span>
+            <strong style={{ fontSize: "1.2rem", color: "#333" }}>
+              {formatCurrency(cartTotal)}
+            </strong>
+          </div>
+          <Button onClick={handleGoToCheckout}>
+            Ver Carrinho ({cartCount})
           </Button>
         </div>
       )}
