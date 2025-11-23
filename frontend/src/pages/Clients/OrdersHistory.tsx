@@ -39,15 +39,15 @@ export const OrdersHistory: React.FC = () => {
     const s = status?.toLowerCase() || "";
 
     if (s.includes("pendente") || s.includes("pending"))
-      return { bg: "#fff3cd", color: "#856404", label: "Pendente" };
+      return { bg: "#fc8403", color: "#664d03", label: "Pendente" };
     if (s.includes("preparando") || s.includes("preparing"))
       return { bg: "#ffecb5", color: "#664d03", label: "Em Preparo" };
-    if (s.includes("caminho") || s.includes("way"))
-      return { bg: "#cff4fc", color: "#055160", label: "A Caminho" };
+    if (s.includes("caminho") || s.includes("on_the_way"))
+      return { bg: "#cff4fc", color: "#664d03", label: "A Caminho" };
     if (s.includes("entregue") || s.includes("delivered"))
-      return { bg: "#d1e7dd", color: "#0f5132", label: "Entregue" };
+      return { bg: "#d1e7dd", color: "#664d03", label: "Entregue" };
     if (s.includes("cancelado") || s.includes("canceled"))
-      return { bg: "#f8d7da", color: "#842029", label: "Cancelado" };
+      return { bg: "#f8d7da", color: "#664d03", label: "Cancelado" };
 
     return { bg: "#e2e3e5", color: "#383d41", label: status };
   };

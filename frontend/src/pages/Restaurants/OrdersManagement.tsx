@@ -8,6 +8,15 @@ import { useAuth } from "../../hooks/useAuth";
 import { formatCurrency } from "../../utils/formatCurrency";
 import "./OrdersManagement.css";
 
+// Mapa de tradução FRONT -> BACK (Enum exato do Prisma)
+const statusMapToDb: Record<OrderStatus, string> = {
+  pending: "Pendente",
+  preparing: "Preparando",
+  on_the_way: "Caminho",
+  delivered: "Entregue",
+  canceled: "Cancelado",
+};
+
 const getStatusLabel = (status: string) => {
   switch (status?.toLowerCase()) {
     case "pending":
@@ -25,14 +34,6 @@ const getStatusLabel = (status: string) => {
   }
 };
 
-const statusMapToDb: Record<OrderStatus, string> = {
-  pending: "Pendente",
-  preparing: "Preparando",
-  on_the_way: "Caminho",
-  delivered: "Entregue",
-  canceled: "Cancelado",
-};
-
 export const OrdersManagement: React.FC = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<IOrder[]>([]);
@@ -45,8 +46,8 @@ export const OrdersManagement: React.FC = () => {
     }
   }, [user]);
 
-  const loadOrders = (restId?: string) => {
-    if (!restId) return;
+  const loadOrders = (restId: string) => {
+    setIsLoading(true);
     orderService
       .getOrdersByRestaurant(restId)
       .then(setOrders)
@@ -61,7 +62,12 @@ export const OrdersManagement: React.FC = () => {
     orderId: string,
     newStatus: OrderStatus
   ) => {
-    // 1. UI Otimista (Visual imediato)
+    if (newStatus === "canceled") {
+      if (!window.confirm("Tem certeza que deseja cancelar este pedido?"))
+        return;
+    }
+
+    // 1. UI Otimista
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
         order.id === orderId ? { ...order, status: newStatus } : order
@@ -69,39 +75,28 @@ export const OrdersManagement: React.FC = () => {
     );
 
     try {
-      console.log(`Tentando atualizar pedido ${orderId} para ${newStatus}...`);
-
-      // 2. TRADUÇÃO EXPLÍCITA: Envia o valor exato que o banco quer (Ex: 'Preparando')
-      // O TypeScript pode reclamar que o OrderStatus espera as chaves em inglês,
-      // então fazemos um cast 'as any' ou ajustamos a interface, mas isso resolve o erro lógico.
-      const statusParaEnviar = statusMapToDb[newStatus];
-
-      // Nota: O service espera OrderStatus (inglês), mas vamos burlar isso para testar a teoria do banco
-      // Se o backend espera inglês e traduz, isso aqui vai quebrar lá.
-      // Se o backend espera português direto, isso conserta.
-
-      // MELHOR ABORDAGEM: Mantenha o envio em INGLÊS, mas force o reload com delay
+      // 2. Tradução e Envio
+      // Usamos o mapa reverso se o backend esperar PT-BR, ou mandamos direto se esperar EN
+      // Como seu backend index.ts tem um mapa interno que aceita inglês ("canceled"),
+      // podemos mandar "canceled" direto.
       await orderService.updateOrderStatus(orderId, newStatus);
 
-      console.log("Sucesso no backend. Recarregando dados...");
-
-      // 3. Delay estratégico para garantir que o banco comitou a transação antes de ler
       if (user?.restaurantId) {
         setTimeout(() => {
-          loadOrders(user.restaurantId);
+          // loadOrders(user.restaurantId); // Opcional, apenas se quiser forçar sync
         }, 300);
       }
     } catch (err) {
-      console.error("Erro ao atualizar:", err);
-      alert("Erro ao salvar status. O pedido voltará ao estado anterior.");
-
-      // Reverte UI
+      console.error(err);
+      alert("Erro ao atualizar status. O pedido voltará ao estado anterior.");
       if (user?.restaurantId) loadOrders(user.restaurantId);
     }
   };
+
   if (isLoading) return <Loader />;
   if (error) return <div className="error-message">{error}</div>;
 
+  // Adicionamos 'canceled' nas colunas se você quiser ver os cancelados também
   const columns = ["pending", "preparing", "on_the_way"] as const;
 
   return (
@@ -143,24 +138,36 @@ export const OrdersManagement: React.FC = () => {
                       <div className="order-items-list">
                         {order.items.map((item) => (
                           <div key={item.id_item} className="order-item-row">
-                            <span className="item-qty">
-                              {item.quantidade}x -{" "}
-                            </span>
+                            <span className="item-qty">{item.quantidade}x</span>
                             <span className="item-desc">{item.descricao}</span>
                           </div>
                         ))}
                       </div>
 
                       <div className="order-card-actions">
+                        {/* BOTÕES PARA PENDENTE */}
                         {status === "pending" && (
-                          <Button
-                            onClick={() =>
-                              handleUpdateStatus(order.id, "preparing")
-                            }
-                          >
-                            Aceitar Pedido
-                          </Button>
+                          <>
+                            <Button
+                              onClick={() =>
+                                handleUpdateStatus(order.id, "preparing")
+                              }
+                              style={{ marginBottom: "8px" }}
+                            >
+                              Aceitar Pedido
+                            </Button>
+                            <Button
+                              onClick={() =>
+                                handleUpdateStatus(order.id, "canceled")
+                              }
+                              style={{ backgroundColor: "#dc3545" }} // Vermelho
+                            >
+                              Cancelar Pedido
+                            </Button>
+                          </>
                         )}
+
+                        {/* BOTÕES PARA PREPARANDO */}
                         {status === "preparing" && (
                           <Button
                             onClick={() =>
@@ -170,6 +177,8 @@ export const OrdersManagement: React.FC = () => {
                             Enviar Entrega
                           </Button>
                         )}
+
+                        {/* BOTÕES PARA A CAMINHO */}
                         {status === "on_the_way" && (
                           <Button
                             onClick={() =>
@@ -177,7 +186,7 @@ export const OrdersManagement: React.FC = () => {
                             }
                             style={{ backgroundColor: "#28a745" }}
                           >
-                            Concluir
+                            Concluir Entrega
                           </Button>
                         )}
                       </div>

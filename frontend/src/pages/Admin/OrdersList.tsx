@@ -30,24 +30,22 @@ export const OrdersList: React.FC = () => {
       });
   };
 
-  const getStatusColor = (status: string) => {
-    const statusLower = status?.toLowerCase() || "";
-    if (statusLower.includes("entregue") || statusLower.includes("concluido"))
-      return "#d4edda";
-    if (statusLower.includes("cancelado")) return "#f8d7da";
-    if (statusLower.includes("preparo") || statusLower.includes("andamento"))
-      return "#fff3cd";
-    return "#e2e3e5";
-  };
+  // --- Lógica de Cores (Padronizada com Client) ---
+  const getStatusConfig = (status: string) => {
+    const s = status?.toLowerCase() || "";
 
-  const getStatusTextColor = (status: string) => {
-    const statusLower = status?.toLowerCase() || "";
-    if (statusLower.includes("entregue") || statusLower.includes("concluido"))
-      return "#155724";
-    if (statusLower.includes("cancelado")) return "#721c24";
-    if (statusLower.includes("preparo") || statusLower.includes("andamento"))
-      return "#856404";
-    return "#383d41";
+    if (s.includes("pendente") || s.includes("pending"))
+      return { bg: "#fc8403", color: "#664d03", label: "Pendente" };
+    if (s.includes("preparando") || s.includes("preparing"))
+      return { bg: "#ffecb5", color: "#664d03", label: "Em Preparo" };
+    if (s.includes("caminho") || s.includes("on_the_way"))
+      return { bg: "#cff4fc", color: "#664d03", label: "A Caminho" };
+    if (s.includes("entregue") || s.includes("delivered"))
+      return { bg: "#d1e7dd", color: "#664d03", label: "Entregue" };
+    if (s.includes("cancelado") || s.includes("canceled"))
+      return { bg: "#f8d7da", color: "#664d03", label: "Cancelado" };
+
+    return { bg: "#e2e3e5", color: "#383d41", label: status };
   };
 
   if (isLoading) return <Loader />;
@@ -70,46 +68,60 @@ export const OrdersList: React.FC = () => {
           <p>Nenhum pedido registrado no sistema.</p>
         </div>
       ) : (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th style={{ width: "5%" }}>ID</th>
-              <th style={{ width: "15%" }}>Cliente</th>
-              <th style={{ width: "15%" }}>Restaurante</th>
-              <th style={{ width: "15%" }}>Data</th>
-              <th style={{ width: "10%" }}>Status</th>
-              <th style={{ width: "15%" }}>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.id}>
-                <td>#{order.id}</td>
-                <td>{order.clientName}</td>
-                <td>{order.restaurantName}</td>
-                <td>{formatDate(order.createdAt)}</td>
-                <td>
-                  <span
-                    className="status-badge"
-                    style={{
-                      backgroundColor: getStatusColor(order.status),
-                      color: getStatusTextColor(order.status),
-                      padding: "4px 8px",
-                      borderRadius: "4px",
-                      fontWeight: "bold",
-                      fontSize: "0.85rem",
-                    }}
-                  >
-                    {order.status}
-                  </span>
-                </td>
-                <td>
-                  <strong>{formatCurrency(order.totalValue)}</strong>
-                </td>
+        <div className="table-responsive">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th style={{ width: "5%" }}>ID</th>
+                <th style={{ width: "20%" }}>Cliente</th>
+                <th style={{ width: "20%" }}>Restaurante</th>
+                <th style={{ width: "15%" }}>Data</th>
+                <th style={{ width: "15%" }}>Status</th>
+                <th style={{ width: "15%", textAlign: "right" }}>Total</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {orders.map((order) => {
+                const statusConfig = getStatusConfig(order.status);
+                return (
+                  <tr key={order.id}>
+                    <td>#{order.id}</td>
+                    <td>{order.clientName}</td>
+                    <td>{order.restaurantName}</td>
+                    <td>{formatDate(order.createdAt)}</td>
+                    <td>
+                      <span
+                        className="status-badge"
+                        style={{
+                          backgroundColor: statusConfig.bg,
+                          color: statusConfig.color,
+                          padding: "6px 12px",
+                          borderRadius: "20px",
+                          fontWeight: "bold",
+                          fontSize: "0.85rem",
+                          border: `1px solid ${statusConfig.color}20`,
+                          display: "inline-block",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {statusConfig.label}
+                      </span>
+                    </td>
+                    <td
+                      style={{
+                        textAlign: "right",
+                        fontWeight: "bold",
+                        color: "#28a745",
+                      }}
+                    >
+                      {formatCurrency(order.totalValue)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
