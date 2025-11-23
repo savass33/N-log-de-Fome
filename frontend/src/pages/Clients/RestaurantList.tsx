@@ -1,54 +1,98 @@
-import React, { useState } from 'react';
-import { Card } from '../../components/common/Card';
-import { Input } from '../../components/common/Input';
-import { Link } from 'react-router-dom';
-import './Client.css';
-
-// Mock de dados
-const mockRestaurants = [
-  { id: 'r1', name: 'Pizza da Boa', category: 'Pizzaria', deliveryTime: '30-45 min', imageUrl: 'https://placehold.co/400x200/D93025/white?text=Pizza' },
-  { id: 'r2', name: 'Sushi Express', category: 'Japonesa', deliveryTime: '45-60 min', imageUrl: 'https://placehold.co/400x200/333333/white?text=Sushi' },
-  { id: 'r3', name: 'Burger do Zé', category: 'Hamburgueria', deliveryTime: '20-40 min', imageUrl: 'https://placehold.co/400x200/F2994A/white?text=Burger' },
-];
+import React, { useState, useEffect } from "react";
+import { Card } from "../../components/common/Card";
+import { Input } from "../../components/common/Input";
+import { Link } from "react-router-dom";
+import { restaurantService } from "../../services/restaurantService";
+import { type IRestaurant } from "../../interfaces/IRestaurant";
+import { Loader } from "../../components/common/Loader";
+import "./Client.css";
 
 export const RestaurantsList: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [restaurants, setRestaurants] = useState<IRestaurant[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredRestaurants = mockRestaurants.filter(r => 
-    r.name.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    loadRestaurants();
+  }, []);
+
+  const loadRestaurants = async () => {
+    try {
+      const data = await restaurantService.getRestaurants();
+      setRestaurants(data);
+    } catch (err) {
+      console.error(err);
+      setError("Não foi possível carregar a lista de restaurantes.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Filtra por nome OU tipo de cozinha
+  const filteredRestaurants = restaurants.filter(
+    (r) =>
+      r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.cuisineType?.toLowerCase().includes(searchTerm.toLowerCase()) // Safe check com '?'
   );
+
+  if (isLoading) return <Loader />;
 
   return (
     <div className="client-page-container">
       <h1>Restaurantes</h1>
-      <Input 
-        placeholder="Buscar restaurante pelo nome..."
+
+      {error && (
+        <div
+          className="error-message"
+          style={{ color: "red", marginBottom: "20px" }}
+        >
+          {error}
+        </div>
+      )}
+
+      <Input
+        placeholder="Busque por nome ou tipo de cozinha (ex: Japonesa)..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ marginBottom: '24px', width: '100%' }}
+        style={{ marginBottom: "24px", width: "100%" }}
       />
-      
-      <div className="restaurant-list-grid">
-        {filteredRestaurants.map(resto => (
-          <Link 
-            to={`/app/client/restaurants/${resto.id}/menu`} 
-            key={resto.id} 
-            className="restaurant-card-link"
-          >
-            <Card>
-              <img 
-                src={resto.imageUrl} 
-                alt={resto.name} 
-                className="restaurant-card-image"
-              />
-              <div className="restaurant-card-content">
-                <h3>{resto.name}</h3>
-                <p>{resto.category} • {resto.deliveryTime}</p>
-              </div>
-            </Card>
-          </Link>
-        ))}
-      </div>
+
+      {filteredRestaurants.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "40px", color: "#666" }}>
+          Nenhum restaurante encontrado.
+        </div>
+      ) : (
+        <div className="restaurant-list-grid">
+          {filteredRestaurants.map((resto) => (
+            <Link
+              to={`/client/restaurants/${resto.id}/menu`} // Ajustei a rota para bater com AppRoutes
+              key={resto.id}
+              className="restaurant-card-link"
+            >
+              <Card>
+                {/* Fallback image se não tiver URL */}
+                <img
+                  src={
+                    resto.imageUrl ||
+                    "https://placehold.co/400x200/e63946/white?text=Restaurante"
+                  }
+                  alt={resto.name}
+                  className="restaurant-card-image"
+                />
+                <div className="restaurant-card-content">
+                  <h3>{resto.name}</h3>
+                  <p>
+                    {resto.cuisineType || "Variada"}
+                    {/* Se o backend mandar tempo de entrega, mostramos aqui. Senão: */}
+                    • 30-45 min
+                  </p>
+                </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

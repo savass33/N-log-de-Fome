@@ -29,21 +29,20 @@ model itempedido {
   descri__o    String? @map("descrição") @db.VarChar(200)
   quantidade   Int
   preco        Float   @db.Float
-  pedido       pedido  @relation(fields: [id_pedido_fk], references: [id_pedido], onDelete: NoAction, onUpdate: NoAction, map: "fk_id_pedido")
-
+  pedido        pedido @relation(fields: [id_pedido_fk], references: [id_pedido], onDelete: Cascade, onUpdate: NoAction, map: "fk_id_pedido")
   @@index([id_pedido_fk], map: "fk_id_pedido")
 }
 
 model pedido {
-  id_pedido         Int                   @id @default(autoincrement())
+  id_pedido         Int      @id @default(autoincrement())
   id_cliente_fk     Int
   id_restaurante_fk Int
-  data_hora         DateTime              @db.DateTime(0)
-  status_pedido     pedido_status_pedido? @default(Preparando)
+  data_hora         DateTime @db.DateTime(0)
+  status_pedido     pedido_status_pedido? @default(Pendente)
+  cliente           cliente  @relation(fields: [id_cliente_fk], references: [id_cliente], onDelete: Cascade, onUpdate: NoAction, map: "fk_id_cliente")
+  restaurante       restaurante @relation(fields: [id_restaurante_fk], references: [id_restaurante], onDelete: Cascade, onUpdate: NoAction, map: "fk_id_restaurante")
   itempedido        itempedido[]
-  cliente           cliente               @relation(fields: [id_cliente_fk], references: [id_cliente], onDelete: NoAction, onUpdate: NoAction, map: "fk_id_cliente")
-  restaurante       restaurante           @relation(fields: [id_restaurante_fk], references: [id_restaurante], onDelete: NoAction, onUpdate: NoAction, map: "fk_id_restaurante")
-
+  
   @@index([id_cliente_fk], map: "fk_id_cliente")
   @@index([id_restaurante_fk], map: "fk_id_restaurante")
 }
@@ -53,7 +52,16 @@ model restaurante {
   nome           String?  @db.VarChar(100)
   telefone       String?  @db.VarChar(15)
   tipo_cozinha   String?  @db.VarChar(50)
+  endereco       String?  @db.VarChar(100)
+  email          String?  @db.VarChar(100)
   pedido         pedido[]
+}
+
+model admin {
+  id_admin Int     @id @default(autoincrement())
+  nome     String? @db.VarChar(100)
+  email    String? @db.VarChar(100)
+  telefone String? @db.VarChar(15)
 }
 
 enum entregador_status_entrega {
@@ -62,6 +70,9 @@ enum entregador_status_entrega {
 }
 
 enum pedido_status_pedido {
-  Entregue
+  Pendente
   Preparando
+  Caminho
+  Entregue
+  Cancelado
 }

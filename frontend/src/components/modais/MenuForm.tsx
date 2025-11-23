@@ -50,7 +50,6 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
       description,
       price,
       category,
-      imageUrl: itemToEdit?.imageUrl || 'https://placehold.co/100', // Mock
     };
     
     onSave(savedItem);

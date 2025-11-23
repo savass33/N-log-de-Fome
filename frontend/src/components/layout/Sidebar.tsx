@@ -5,14 +5,12 @@ import "./Layout.css";
 
 // Definição das rotas para cada perfil
 const adminNav = [
-  { path: "/admin/dashboard", label: "Dashboard" },
   { path: "/admin/restaurants", label: "Restaurantes" },
   { path: "/admin/clients", label: "Clientes" },
   { path: "/admin/orders", label: "Pedidos" },
 ];
 
 const restaurantNav = [
-  { path: "/restaurant/dashboard", label: "Dashboard" },
   { path: "/restaurant/orders", label: "Pedidos" },
   { path: "/restaurant/menu", label: "Cardápio" },
   { path: "/restaurant/my-restaurant", label: "Meu Restaurante" },
