@@ -15,7 +15,7 @@ interface RestaurantFormModalProps {
     email: string;
     address: string;
   }) => void;
-  restaurantToEdit: IRestaurant | null; // Se null = Novo, Se objeto = Editar
+  restaurantToEdit: IRestaurant | null;
 }
 
 export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
@@ -24,27 +24,21 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
   onSave,
   restaurantToEdit,
 }) => {
-  // Estados do formulário
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [cuisineType, setCuisineType] = useState("");
   const [address, setAddress] = useState("");
 
-  // Popula o formulário quando abre ou muda o restaurante selecionado
   useEffect(() => {
     if (isOpen) {
       if (restaurantToEdit) {
-        // Modo Edição: Preenche os campos
         setName(restaurantToEdit.name);
-        setPhone(restaurantToEdit.cnpj); // O Adapter mapeia 'telefone' do banco para 'cnpj' na interface
-        // Se a interface IRestaurant não tiver email explícito ainda, usamos um fallback ou ajustamos a interface
-        // Assumindo que você vai ajustar IRestaurant ou que ele vem no objeto, mas por segurança:
+        setPhone(formatPhone(restaurantToEdit.cnpj)); // cnpj guarda o telefone
         setEmail((restaurantToEdit as any).email || "");
-        setCuisineType(restaurantToEdit.cuisineType || ""); // Ou restaurantToEdit.address se estiver usando o hack antigo
+        setCuisineType(restaurantToEdit.cuisineType || "");
         setAddress(restaurantToEdit.address);
       } else {
-        // Modo Criação: Limpa tudo
         setName("");
         setPhone("");
         setEmail("");
@@ -54,16 +48,55 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
     }
   }, [isOpen, restaurantToEdit]);
 
+  // --- Máscara de Telefone ---
+  const formatPhone = (val: string) => {
+    if (!val) return "";
+    const value = val.replace(/\D/g, "");
+    if (value.length > 11) return value.slice(0, 11);
+    return value
+      .replace(/^(\d{2})(\d)/g, "($1) $2")
+      .replace(/(\d)(\d{4})$/, "$1-$2");
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(formatPhone(e.target.value));
+  };
+
+  // --- Validação de Email ---
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 1. Sanitização e Validação
+    const cleanName = name.trim();
+    const cleanEmail = email.trim();
+    const cleanPhone = phone.trim();
+    const cleanAddress = address.trim();
+    const cleanCuisine = cuisineType.trim();
+
+    if (cleanName.length < 3) return alert("Nome do restaurante muito curto.");
+
+    if (!isValidEmail(cleanEmail)) return alert("E-mail inválido.");
+
+    // Remove máscara para contar dígitos
+    if (cleanPhone.replace(/\D/g, "").length < 10)
+      return alert("Telefone inválido (mínimo 10 dígitos).");
+
+    if (cleanAddress.length < 5) return alert("Endereço muito curto.");
+
+    if (cleanCuisine.length < 3) return alert("Tipo de cozinha obrigatório.");
+
+    // 2. Salvar
     onSave({
-      id: restaurantToEdit?.id, // Passa o ID se for edição
-      name,
-      phone,
-      email,
-      cuisineType,
-      address,
+      id: restaurantToEdit?.id,
+      name: cleanName,
+      phone: cleanPhone, // Pode salvar formatado ou limpo, depende da preferência
+      email: cleanEmail,
+      cuisineType: cleanCuisine,
+      address: cleanAddress,
     });
 
     onClose();
@@ -114,9 +147,10 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
           <Input
             id="phone"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={handlePhoneChange} // Usa a máscara
             required
             placeholder="(XX) 99999-9999"
+            maxLength={15}
           />
         </div>
 

@@ -51,12 +51,16 @@ export const RestaurantsList: React.FC = () => {
         </div>
       )}
 
-      <Input
-        placeholder="Busque por nome ou tipo de cozinha (ex: Japonesa)..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ marginBottom: "24px", width: "100%" }}
-      />
+      <div className="profile-form profile-form-container">
+        <div className="form-group">
+          <Input
+            placeholder="Busque por nome ou tipo de cozinha (ex: Japonesa)..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ marginBottom: "24px", width: "100%" }}
+          />
+        </div>
+      </div>
 
       {filteredRestaurants.length === 0 ? (
         <div style={{ textAlign: "center", padding: "40px", color: "#666" }}>
@@ -66,12 +70,11 @@ export const RestaurantsList: React.FC = () => {
         <div className="restaurant-list-grid">
           {filteredRestaurants.map((resto) => (
             <Link
-              to={`/client/restaurants/${resto.id}/menu`} // Ajustei a rota para bater com AppRoutes
+              to={`/client/restaurants/${resto.id}/menu`} 
               key={resto.id}
               className="restaurant-card-link"
             >
               <Card>
-                
                 <div className="restaurant-card-content">
                   <h3>{resto.name}</h3>
                   <p>

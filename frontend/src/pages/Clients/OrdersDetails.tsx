@@ -40,7 +40,7 @@ export const OrderDetails: React.FC = () => {
   const getStatusConfig = (status: string) => {
     const s = status?.toLowerCase() || "";
 
-    if (s.includes("pendente"))
+    if (s.includes("pendente") || s.includes("pending"))
       return { bg: "#fff3cd", color: "#856404", label: "Pendente" };
     if (s.includes("preparando") || s.includes("preparing"))
       return { bg: "#ffecb5", color: "#664d03", label: "Em Preparo" };
