@@ -7,20 +7,19 @@ import "./Client.css";
 import { clientService } from "../../services/clientService";
 
 export const ClientProfile: React.FC = () => {
-  // Pegamos a nova função updateUserSession do hook
   const { user, updateUserSession } = useAuth();
 
-  const [name, setName] = useState(user?.name || "");
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (user) {
       setName(user.name || "");
-      if (!phone && user.phone) setPhone(formatPhoneOnly(user.phone));
-      if (!address) setAddress(user.address || "");
+      if (user.phone) setPhone(formatPhoneOnly(user.phone));
+      if (user.address) setAddress(user.address || "");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const formatPhoneOnly = (val: string) => {
@@ -33,39 +32,46 @@ export const ClientProfile: React.FC = () => {
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneOnly(e.target.value);
-    setPhone(formatted);
+    setPhone(formatPhoneOnly(e.target.value));
   };
 
   const handleSave = async () => {
+    // 1. Validações
+    const cleanName = name.trim();
+    const cleanAddress = address.trim();
+    const cleanPhone = phone.replace(/\D/g, "");
+
+    if (cleanName.length < 3) return alert("Nome inválido (mínimo 3 letras).");
+    if (cleanPhone.length < 10) return alert("Telefone inválido.");
+    if (cleanAddress.length < 5) return alert("Endereço incompleto.");
+
+    const rawId = user?.id || "";
+    const cleanId = rawId.replace(/\D/g, "");
+
+    if (!cleanId) return alert("Erro de sessão. Faça login novamente.");
+
+    // 2. Envio
+    setIsSaving(true);
     try {
-      if (!name.trim()) return alert("Nome obrigatório.");
-      if (!phone.trim()) return alert("Telefone obrigatório.");
-
-      const rawId = user?.id || "";
-      const cleanId = rawId.replace(/\D/g, "");
-
-      if (!cleanId) return alert("Erro de ID.");
-
-      // 1. Atualiza no BANCO DE DADOS (Backend)
       await clientService.updateClient(cleanId, {
-        name: name,
-        phone: phone,
-        address: address,
+        name: cleanName,
+        phone: phone, // Salva formatado
+        address: cleanAddress,
         email: user?.email,
       });
 
-      // 2. CORREÇÃO DO ERRO: Atualiza a SESSÃO LOCAL (Frontend)
       updateUserSession({
-        name: name,
+        name: cleanName,
         phone: phone,
-        address: address,
+        address: cleanAddress,
       });
 
-      alert("Perfil salvo com sucesso!");
+      alert("Perfil atualizado com sucesso!");
     } catch (error) {
       console.error("Erro ao salvar perfil: ", error);
-      alert("Erro ao salvar.");
+      alert("Não foi possível salvar as alterações.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -85,6 +91,7 @@ export const ClientProfile: React.FC = () => {
               onChange={(e) => setName(e.target.value)}
               placeholder="Digite seu nome"
               maxLength={100}
+              disabled={isSaving}
             />
           </div>
           <div className="form-group">
@@ -94,7 +101,7 @@ export const ClientProfile: React.FC = () => {
               value={user?.email || ""}
               readOnly
               disabled
-              style={{ backgroundColor: "#f0f0f0", cursor: "not-allowed" }}
+              style={{ backgroundColor: "#f5f5f5", cursor: "not-allowed" }}
             />
           </div>
           <div className="form-group">
@@ -105,6 +112,7 @@ export const ClientProfile: React.FC = () => {
               onChange={handlePhoneChange}
               placeholder="(00) 00000-0000"
               maxLength={15}
+              disabled={isSaving}
             />
           </div>
           <div className="form-group">
@@ -115,10 +123,11 @@ export const ClientProfile: React.FC = () => {
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Rua, Número - Bairro"
               maxLength={100}
+              disabled={isSaving}
             />
           </div>
-          <Button type="button" onClick={handleSave}>
-            Salvar Alterações
+          <Button type="button" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? "Salvando..." : "Salvar Alterações"}
           </Button>
         </form>
       </Card>

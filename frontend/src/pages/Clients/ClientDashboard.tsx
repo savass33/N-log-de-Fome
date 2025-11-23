@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Card } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth"; // Dados reais do usuário
-import { orderService } from "../../services/orderService"; // Serviço real
+import { useAuth } from "../../hooks/useAuth";
+import { orderService } from "../../services/orderService";
 import { type IOrder } from "../../interfaces/IOrder";
 import { Loader } from "../../components/common/Loader";
 import { formatCurrency } from "../../utils/formatCurrency";
@@ -16,25 +16,29 @@ export const ClientDashboard: React.FC = () => {
 
   useEffect(() => {
     if (user?.clientId) {
-      loadRecentOrders(user.clientId); // Busca pedidos DO CLIENTE, não todos
+      loadRecentOrders(user.clientId);
+    } else {
+      setIsLoading(false);
     }
   }, [user]);
 
   const loadRecentOrders = async (clientId: string) => {
     try {
-      // Nota: Precisamos garantir que o backend tenha a rota /api/pedidos/cliente/:id
-      // Se não tiver, usamos getAllOrders e filtramos no front (menos performático, mas funciona)
-      // Vou assumir que criamos a rota específica na iteração anterior do index.ts
-      const allOrders = await orderService.getAllOrders();
+      // Se o backend tiver a rota dedicada, usamos getOrdersByClient
+      // Se não, usamos a lógica de filtro no front (getAllOrders)
+      const allOrders = await orderService.getAllOrders(); // Fallback seguro
 
-      // Filtra apenas os pedidos deste cliente e pega os 3 últimos
       const myOrders = allOrders
-        .filter((o) => o.clientName === user?.name) // Filtragem provisória pelo nome ou ID se o objeto Order tiver clientId
+        .filter((o) => o.clientName === user?.name) // Ou filtro por ID se disponível
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
         .slice(0, 3);
 
       setRecentOrders(myOrders);
     } catch (error) {
-      console.error("Erro ao carregar pedidos recentes:", error);
+      console.error("Erro dashboard:", error);
     } finally {
       setIsLoading(false);
     }
@@ -44,43 +48,56 @@ export const ClientDashboard: React.FC = () => {
 
   return (
     <div className="dashboard-container">
-      <h1>Olá, {user?.name}!</h1>
+      <h1>Olá, {user?.name || "Cliente"}!</h1>
       <p>O que você gostaria de pedir hoje?</p>
 
       <div className="dashboard-grid">
         <Card title="Acesso Rápido" className="quick-access-card">
           <div className="quick-links">
             <Link to="/client/restaurants">
-              <Button>Ver Restaurantes</Button>
+              <Button style={{ color: "white" }}>Ver Restaurantes</Button>
             </Link>
             <Link to="/client/orders">
-              <Button>Meus Pedidos</Button>
+              <Button style={{ color: "white" }}>Meus Pedidos</Button>
             </Link>
             <Link to="/client/profile">
-              <Button>Meu Perfil</Button>
+              <Button style={{ color: "white" }}>Meu Perfil</Button>
             </Link>
           </div>
         </Card>
 
         <Card title="Últimos Pedidos" className="recent-orders-card">
           {recentOrders.length === 0 ? (
-            <p style={{ color: "#666", fontStyle: "italic" }}>
-              Você ainda não fez nenhum pedido.
-            </p>
+            <div
+              style={{ textAlign: "center", padding: "20px", color: "#666" }}
+            >
+              <p style={{ fontStyle: "italic", marginBottom: "10px" }}>
+                Você ainda não fez nenhum pedido.
+              </p>
+              <Link to="/client/restaurants">
+                <Button>Fazer Pedido</Button>
+              </Link>
+            </div>
           ) : (
             recentOrders.map((order) => (
               <div key={order.id} className="order-summary-item">
                 <div>
                   <strong>{order.restaurantName}</strong>
-                  <p>Status: {order.status}</p>
-                  <p style={{ fontSize: "0.85rem", color: "#555" }}>
-                    {formatCurrency(order.totalValue)}
+                  <p
+                    style={{
+                      fontSize: "0.9rem",
+                      color: "#555",
+                      margin: "2px 0",
+                    }}
+                  >
+                    {order.status}
                   </p>
+                  <strong style={{ color: "#28a745" }}>
+                    {formatCurrency(order.totalValue)}
+                  </strong>
                 </div>
-                {/* A rota de detalhes precisa existir no AppRoutes para clientes */}
-                {/* Se não existir, mandamos para o histórico */}
-                <Link to="/client/orders">
-                  <Button>Ver Detalhes</Button>
+                <Link to={`/client/orders/${order.id}`}>
+                  <Button style={{ fontSize: "0.8rem" }}>Detalhes</Button>
                 </Link>
               </div>
             ))

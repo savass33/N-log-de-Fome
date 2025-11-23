@@ -4,7 +4,7 @@ import { restaurantService } from "../../services/restaurantService";
 import { Loader } from "../../components/common/Loader";
 import { Button } from "../../components/common/Button";
 import { ConfirmModal } from "../../components/modais/ConfirmModal";
-import { RestaurantFormModal } from "../../components/modais/RestaurantFormModal"; // Importe o novo modal
+import { RestaurantFormModal } from "../../components/modais/RestaurantFormModal";
 import "./Admin.css";
 
 export const RestaurantsList: React.FC = () => {
@@ -12,11 +12,9 @@ export const RestaurantsList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Estado para Exclusão
+  // Estados Modais
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [restoToDelete, setRestoToDelete] = useState<string | null>(null);
-
-  // Estado para Criação/Edição
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [restoToEdit, setRestoToEdit] = useState<IRestaurant | null>(null);
 
@@ -24,22 +22,20 @@ export const RestaurantsList: React.FC = () => {
     loadRestaurants();
   }, []);
 
-  const loadRestaurants = () => {
+  const loadRestaurants = async () => {
     setIsLoading(true);
-    restaurantService
-      .getRestaurants()
-      .then((data) => {
-        setRestaurants(data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Erro ao carregar restaurantes. O backend está ativo?");
-        setIsLoading(false);
-      });
+    try {
+      const data = await restaurantService.getRestaurants();
+      setRestaurants(data);
+    } catch (err) {
+      console.error(err);
+      setError("Erro ao carregar restaurantes. Verifique sua conexão.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // --- Handlers de Exclusão ---
+  // --- Exclusão ---
   const handleDeleteClick = (id: string) => {
     setRestoToDelete(id);
     setIsDeleteModalOpen(true);
@@ -47,33 +43,31 @@ export const RestaurantsList: React.FC = () => {
 
   const confirmDelete = async () => {
     if (restoToDelete) {
+      setIsLoading(true); // Bloqueia a tela enquanto deleta
       try {
         await restaurantService.deleteRestaurant(restoToDelete);
-        // Atualiza a lista local (Optimistic update ou reload)
         setRestaurants((prev) => prev.filter((r) => r.id !== restoToDelete));
         alert("Restaurante removido com sucesso!");
       } catch (error) {
         console.error(error);
-        alert("Erro ao remover restaurante.");
+        alert("Erro ao remover restaurante. Ele pode ter pedidos vinculados.");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
 
-  // --- Handlers de Criação/Edição ---
-
-  // Abrir modal para criar NOVO
+  // --- Edição/Criação ---
   const handleAddClick = () => {
-    setRestoToEdit(null); // Null indica criação
+    setRestoToEdit(null);
     setIsFormModalOpen(true);
   };
 
-  // Abrir modal para EDITAR existente
   const handleEditClick = (resto: IRestaurant) => {
-    setRestoToEdit(resto); // Objeto indica edição
+    setRestoToEdit(resto);
     setIsFormModalOpen(true);
   };
 
-  // Salvar (Create ou Update)
   const handleSaveRestaurant = async (formData: {
     id?: string;
     name: string;
@@ -82,19 +76,20 @@ export const RestaurantsList: React.FC = () => {
     email: string;
     address: string;
   }) => {
+    setIsLoading(true); // Bloqueia tela
     try {
       if (formData.id) {
-        // EDITAR (UPDATE)
+        // UPDATE
         await restaurantService.updateRestaurant(formData.id, {
           name: formData.name,
           phone: formData.phone,
           cuisineType: formData.cuisineType,
           address: formData.address,
-          // Se seu service suportar update de email, passe aqui também
+          // Se o backend suportar update de email, adicione aqui
         });
         alert("Restaurante atualizado!");
       } else {
-        // CRIAR (CREATE)
+        // CREATE
         await restaurantService.createRestaurant({
           name: formData.name,
           phone: formData.phone,
@@ -102,13 +97,14 @@ export const RestaurantsList: React.FC = () => {
           email: formData.email,
           address: formData.address,
         });
-        alert("Restaurante criado!");
+        alert("Restaurante criado com sucesso!");
       }
-      // Recarrega a lista para mostrar os dados novos
-      loadRestaurants();
+      await loadRestaurants(); // Recarrega a lista do banco
     } catch (error) {
       console.error(error);
-      alert("Erro ao salvar restaurante.");
+      alert("Erro ao salvar restaurante. Verifique se o e-mail já existe.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -150,7 +146,6 @@ export const RestaurantsList: React.FC = () => {
             {restaurants.map((resto) => (
               <tr key={resto.id}>
                 <td>{resto.name}</td>
-                {/* Nota: No service mapeamos Telefone -> CNPJ na interface, ajuste conforme necessidade visual */}
                 <td>{resto.cnpj}</td>
                 <td>{resto.address}</td>
                 <td>{resto.cuisineType}</td>
@@ -169,16 +164,14 @@ export const RestaurantsList: React.FC = () => {
         </table>
       )}
 
-      {/* Modal de Exclusão */}
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
         title="Excluir Restaurante"
-        message="Tem certeza? Isso apagará o restaurante e todo o seu histórico."
+        message="Tem certeza? Isso apagará o restaurante e seu histórico de pedidos."
       />
 
-      {/* Modal de Formulário (Criação/Edição) */}
       <RestaurantFormModal
         isOpen={isFormModalOpen}
         onClose={() => setIsFormModalOpen(false)}

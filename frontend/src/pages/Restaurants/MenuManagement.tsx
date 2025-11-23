@@ -7,7 +7,7 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import "../Restaurants/Restaurant.css";
 import { ConfirmModal } from "../../components/modais/ConfirmModal";
 import { MenuFormModal } from "../../components/modais/MenuForm";
-import { menuService } from "../../services/menuService"; // Service novo
+import { menuService } from "../../services/menuService";
 import { useAuth } from "../../hooks/useAuth";
 
 export const MenuManagement: React.FC = () => {
@@ -24,6 +24,8 @@ export const MenuManagement: React.FC = () => {
   useEffect(() => {
     if (user?.restaurantId) {
       loadMenu(user.restaurantId);
+    } else {
+      setIsLoading(false); // Para não ficar carregando eternamente se não tiver ID
     }
   }, [user]);
 
@@ -34,7 +36,7 @@ export const MenuManagement: React.FC = () => {
       setMenuItems(data);
     } catch (error) {
       console.error(error);
-      alert("Erro ao carregar cardápio.");
+      // Não alertamos erro aqui para não assustar se for apenas vazio ou erro de rede momentâneo
     } finally {
       setIsLoading(false);
     }
@@ -56,24 +58,25 @@ export const MenuManagement: React.FC = () => {
   };
 
   const handleSaveItem = async (item: IMenuItem) => {
-    if (!user?.restaurantId) return;
+    if (!user?.restaurantId)
+      return alert("Erro de sessão. Faça login novamente.");
 
     setIsLoading(true);
     try {
       if (itemToEdit) {
-        // Edição
+        // Edição Real
         await menuService.updateItem(itemToEdit.id, item);
-        alert("Item atualizado!");
+        alert("Item atualizado com sucesso!");
       } else {
-        // Criação
+        // Criação Real
         await menuService.createItem(user.restaurantId, item);
-        alert("Item criado!");
+        alert("Item adicionado ao cardápio!");
       }
-      // Recarrega a lista do banco
+      // Recarrega do banco para garantir sincronia
       await loadMenu(user.restaurantId);
     } catch (error) {
       console.error(error);
-      alert("Erro ao salvar item.");
+      alert("Erro ao salvar item. Verifique os dados e tente novamente.");
     } finally {
       setIsLoading(false);
     }
@@ -84,9 +87,10 @@ export const MenuManagement: React.FC = () => {
       setIsLoading(true);
       try {
         await menuService.deleteItem(itemToDelete);
-        alert("Item removido.");
+        alert("Item removido com sucesso.");
         await loadMenu(user.restaurantId);
       } catch (error) {
+        console.error(error);
         alert("Erro ao remover item.");
       } finally {
         setIsLoading(false);
@@ -107,9 +111,10 @@ export const MenuManagement: React.FC = () => {
 
       {menuItems.length === 0 ? (
         <Card>
-          <p style={{ textAlign: "center", color: "#666" }}>
-            Seu cardápio está vazio no banco de dados.
-          </p>
+          <div style={{ textAlign: "center", padding: "20px", color: "#666" }}>
+            <p>Seu cardápio está vazio no banco de dados.</p>
+            <p>Clique em "Adicionar Novo Item" para começar a vender.</p>
+          </div>
         </Card>
       ) : (
         <div className="menu-items-list">
@@ -117,18 +122,20 @@ export const MenuManagement: React.FC = () => {
             <Card key={item.id} className="menu-item-card">
               <div className="menu-item-details">
                 <h3>{item.name}</h3>
-                <p>{item.description}</p>
+                <p>{item.description || "Sem descrição"}</p>
                 <span
                   style={{
                     fontSize: "0.8rem",
                     background: "#eee",
                     padding: "2px 6px",
                     borderRadius: "4px",
+                    display: "inline-block",
+                    marginBottom: "5px",
                   }}
                 >
                   {item.category}
                 </span>
-                <strong style={{ display: "block", marginTop: "8px" }}>
+                <strong style={{ display: "block", fontSize: "1.1rem" }}>
                   {formatCurrency(item.price)}
                 </strong>
               </div>

@@ -30,15 +30,32 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
   const [cuisineType, setCuisineType] = useState("");
   const [address, setAddress] = useState("");
 
+  // --- MÁSCARA DE TELEFONE ---
+  const formatPhone = (val: string) => {
+    if (!val) return "";
+    const value = val.replace(/\D/g, ""); // Remove letras
+    const limited = value.slice(0, 11); // Limita tamanho
+    return limited
+      .replace(/^(\d{2})(\d)/g, "($1) $2") // (11) 9...
+      .replace(/(\d)(\d{4})$/, "$1-$2"); // ...9999-9999
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(formatPhone(e.target.value));
+  };
+
+  // Popula formulário ao abrir/editar
   useEffect(() => {
     if (isOpen) {
       if (restaurantToEdit) {
         setName(restaurantToEdit.name);
-        setPhone(formatPhone(restaurantToEdit.cnpj)); // cnpj guarda o telefone
+        // Aplica máscara ao carregar do banco
+        setPhone(formatPhone(restaurantToEdit.cnpj));
         setEmail((restaurantToEdit as any).email || "");
         setCuisineType(restaurantToEdit.cuisineType || "");
         setAddress(restaurantToEdit.address);
       } else {
+        // Limpa tudo para novo cadastro
         setName("");
         setPhone("");
         setEmail("");
@@ -48,52 +65,35 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
     }
   }, [isOpen, restaurantToEdit]);
 
-  // --- Máscara de Telefone ---
-  const formatPhone = (val: string) => {
-    if (!val) return "";
-    const value = val.replace(/\D/g, "");
-    if (value.length > 11) return value.slice(0, 11);
-    return value
-      .replace(/^(\d{2})(\d)/g, "($1) $2")
-      .replace(/(\d)(\d{4})$/, "$1-$2");
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPhone(formatPhone(e.target.value));
-  };
-
-  // --- Validação de Email ---
-  const isValidEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Sanitização e Validação
+    // 1. Sanitização
     const cleanName = name.trim();
     const cleanEmail = email.trim();
     const cleanPhone = phone.trim();
-    const cleanAddress = address.trim();
     const cleanCuisine = cuisineType.trim();
+    const cleanAddress = address.trim();
 
+    // 2. Validações (Tratamento de Exceção)
+    if (cleanName.length == 0) return alert ("Insira o nome do restaurante")
     if (cleanName.length < 3) return alert("Nome do restaurante muito curto.");
 
-    if (!isValidEmail(cleanEmail)) return alert("E-mail inválido.");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) return alert("E-mail inválido.");
 
-    // Remove máscara para contar dígitos
-    if (cleanPhone.replace(/\D/g, "").length < 10)
+    const phoneDigits = cleanPhone.replace(/\D/g, "");
+    if (phoneDigits.length < 10)
       return alert("Telefone inválido (mínimo 10 dígitos).");
 
-    if (cleanAddress.length < 5) return alert("Endereço muito curto.");
+    if (cleanCuisine.length < 3) return alert("Informe o tipo de cozinha.");
+    if (cleanAddress.length < 5) return alert("Endereço incompleto.");
 
-    if (cleanCuisine.length < 3) return alert("Tipo de cozinha obrigatório.");
-
-    // 2. Salvar
+    // 3. Envio Seguro
     onSave({
       id: restaurantToEdit?.id,
       name: cleanName,
-      phone: cleanPhone, // Pode salvar formatado ou limpo, depende da preferência
+      phone: cleanPhone,
       email: cleanEmail,
       cuisineType: cleanCuisine,
       address: cleanAddress,
@@ -109,7 +109,10 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
       title={restaurantToEdit ? "Editar Restaurante" : "Novo Restaurante"}
       footer={
         <>
-          <Button onClick={onClose} style={{ backgroundColor: "#999" }}>
+          <Button
+            onClick={onClose}
+            style={{ backgroundColor: "#999", marginRight: "8px" }}
+          >
             Cancelar
           </Button>
           <Button onClick={handleSubmit} type="submit">

@@ -30,11 +30,12 @@ export const RestaurantsList: React.FC = () => {
   };
 
   // Filtra por nome OU tipo de cozinha
-  const filteredRestaurants = restaurants.filter(
-    (r) =>
-      r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.cuisineType?.toLowerCase().includes(searchTerm.toLowerCase()) // Safe check com '?'
-  );
+  const filteredRestaurants = restaurants.filter((r) => {
+    const search = searchTerm.toLowerCase();
+    const nameMatch = (r.name || "").toLowerCase().includes(search);
+    const typeMatch = (r.cuisineType || "").toLowerCase().includes(search);
+    return nameMatch || typeMatch;
+  });
 
   if (isLoading) return <Loader />;
 
@@ -70,7 +71,7 @@ export const RestaurantsList: React.FC = () => {
         <div className="restaurant-list-grid">
           {filteredRestaurants.map((resto) => (
             <Link
-              to={`/client/restaurants/${resto.id}/menu`} 
+              to={`/client/restaurants/${resto.id}/menu`}
               key={resto.id}
               className="restaurant-card-link"
             >

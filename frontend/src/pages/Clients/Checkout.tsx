@@ -19,7 +19,6 @@ export const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Recupera dados passados pela navegação
   const cartItems = (location.state?.cartItems as CartItem[]) || [];
   const restaurantId = location.state?.restaurantId;
   const restaurantName = location.state?.restaurantName;
@@ -32,32 +31,50 @@ export const Checkout: React.FC = () => {
     (acc, row) => acc + row.item.price * row.qty,
     0
   );
-  const deliveryFee = 5.0; // Fixo por enquanto
+  const deliveryFee = 5.0;
   const total = subtotal + deliveryFee;
 
   const handlePlaceOrder = async () => {
-    if (!cartItems.length) return alert("Carrinho vazio!");
-    if (!user?.clientId) return alert("Erro de usuário. Faça login novamente.");
-    if (!restaurantId) return alert("Erro de restaurante.");
+    // 1. Validações Robustas
+    if (!cartItems.length) return alert("Seu carrinho está vazio.");
 
+    if (!user?.clientId) {
+      return alert(
+        "Erro crítico: Usuário não identificado. Tente fazer login novamente."
+      );
+    }
+
+    if (!restaurantId) {
+      return alert(
+        "Erro crítico: Restaurante não identificado. Volte ao cardápio."
+      );
+    }
+
+    const cleanAddress = address.trim();
+    if (cleanAddress.length < 5) {
+      return alert("Por favor, informe um endereço de entrega válido.");
+    }
+
+    // 2. Envio Seguro
     setIsLoading(true);
     try {
-      // Monta o payload que o backend (Index.ts) espera
       await orderService.createOrder({
         clientId: Number(user.clientId),
         restaurantId: Number(restaurantId),
         items: cartItems.map((i) => ({
-          descricao: i.item.name, // Backend usa 'descricao'
+          descricao: i.item.name,
           quantidade: i.qty,
           preco: i.item.price,
         })),
       });
 
-      alert("Pedido realizado com sucesso!");
-      navigate("/client/orders"); // Vai para o histórico
+      alert("Pedido realizado com sucesso! Acompanhe no histórico.");
+      navigate("/client/orders");
     } catch (error) {
       console.error(error);
-      alert("Erro ao finalizar pedido. Tente novamente.");
+      alert(
+        "Não foi possível finalizar o pedido. Tente novamente em instantes."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -66,17 +83,28 @@ export const Checkout: React.FC = () => {
   if (!cartItems.length) {
     return (
       <div className="client-page-container">
-        <h1>Seu carrinho está vazio</h1>
-        <Button onClick={() => navigate("/client/restaurants")}>
-          Voltar para Restaurantes
-        </Button>
+        <Card>
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            <h2>Seu carrinho está vazio 🛒</h2>
+            <p>Adicione itens deliciosos antes de finalizar.</p>
+            <Button
+              onClick={() => navigate("/client/restaurants")}
+              style={{ marginTop: "15px" }}
+            >
+              Ver Restaurantes
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="client-page-container">
-      <h1>Finalizar Pedido - {restaurantName}</h1>
+      <h1>Finalizar Pedido</h1>
+      <p style={{ color: "#666", marginBottom: "20px" }}>
+        Restaurante: <strong>{restaurantName}</strong>
+      </p>
 
       <div className="checkout-grid">
         <Card title="Endereço e Pagamento">
@@ -88,6 +116,7 @@ export const Checkout: React.FC = () => {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 required
+                placeholder="Rua, Número - Bairro"
               />
             </div>
 
@@ -100,14 +129,14 @@ export const Checkout: React.FC = () => {
               >
                 <option value="credit-card">Cartão de Crédito</option>
                 <option value="pix">PIX</option>
-                <option value="cash">Dinheiro</option>
+                <option value="cash">Dinheiro na Entrega</option>
               </select>
             </div>
           </form>
         </Card>
 
         <Card className="order-summary-card">
-          <h3>Resumo</h3>
+          <h3>Resumo do Pedido</h3>
           {cartItems.map((row) => (
             <div key={row.item.id} className="summary-item">
               <span>
@@ -123,7 +152,7 @@ export const Checkout: React.FC = () => {
             <span>{formatCurrency(subtotal)}</span>
           </div>
           <div className="summary-item">
-            <span>Entrega</span>
+            <span>Taxa de Entrega</span>
             <span>{formatCurrency(deliveryFee)}</span>
           </div>
 
@@ -138,7 +167,7 @@ export const Checkout: React.FC = () => {
             style={{ marginTop: "20px" }}
             disabled={isLoading}
           >
-            {isLoading ? "Processando..." : "Confirmar Pedido"}
+            {isLoading ? "Processando..." : `Pagar ${formatCurrency(total)}`}
           </Button>
         </Card>
       </div>

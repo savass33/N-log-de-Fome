@@ -19,7 +19,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
 }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState<string>(""); // String para controlar input vazio
+  const [price, setPrice] = useState<string>(""); // String evita NaN no input
   const [category, setCategory] = useState("");
 
   useEffect(() => {
@@ -44,26 +44,32 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
     // 1. Sanitização
     const cleanName = name.trim();
     const cleanCategory = category.trim();
-    const numericPrice = parseFloat(price);
+    const cleanDescription = description.trim();
 
-    // 2. Validação Robusta
+    // Converte vírgula para ponto caso o usuário use padrão brasileiro (ex: 10,50 -> 10.50)
+    const numericPrice = parseFloat(price.replace(",", "."));
+
+    // 2. Tratamento de Exceções
     if (cleanName.length < 2) {
-      return alert("O nome do item deve ter pelo menos 2 caracteres.");
+      return alert("O nome do item deve ter pelo menos 2 letras.");
     }
 
-    if (isNaN(numericPrice) || numericPrice <= 0) {
-      return alert("O preço deve ser um número maior que zero.");
+    if (isNaN(numericPrice)) {
+      return alert("O preço informado é inválido.");
+    }
+
+    if (numericPrice <= 0) {
+      return alert("O preço deve ser maior que zero.");
     }
 
     if (cleanCategory.length < 2) {
-      return alert("A categoria é obrigatória (ex: Bebidas, Lanches).");
+      return alert("Informe a categoria do item (ex: Bebidas).");
     }
 
-    // 3. Salvar
     const savedItem: IMenuItem = {
       id: itemToEdit?.id || "",
       name: cleanName,
-      description: description.trim(),
+      description: cleanDescription,
       price: numericPrice,
       category: cleanCategory,
     };
@@ -81,8 +87,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
         <>
           <Button
             onClick={onClose}
-            className="btn"
-            style={{ backgroundColor: "#999" }}
+            style={{ backgroundColor: "#999", marginRight: "8px" }}
           >
             Cancelar
           </Button>
