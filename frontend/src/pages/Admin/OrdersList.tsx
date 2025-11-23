@@ -1,94 +1,84 @@
 import React, { useEffect, useState } from "react";
 import { type IOrder } from "../../interfaces/IOrder";
-// import { orderService } from '../../services/orderService';
+import { orderService } from "../../services/orderService"; // Serviço Real
 import { Loader } from "../../components/common/Loader";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { formatDate } from "../../utils/formatDate";
-import "./Admin.css"; // CSS comum para páginas de admin
-
-// Mock de dados (o service faria isso)
-const mockOrders: IOrder[] = [
-  {
-    id: "1001",
-    clientId: "c1",
-    clientName: "Ana Silva",
-    restaurantId: "r1",
-    restaurantName: "Pizza da Boa",
-    status: "pending",
-    createdAt: new Date(Date.now() - 100000).toISOString(),
-    totalValue: 55.5,
-    items: [],
-  },
-  {
-    id: "1002",
-    clientId: "c2",
-    clientName: "Bruno Costa",
-    restaurantId: "r2",
-    restaurantName: "Sushi Express",
-    status: "preparing",
-    createdAt: new Date(Date.now() - 500000).toISOString(),
-    totalValue: 80.0,
-    items: [],
-  },
-  {
-    id: "1003",
-    clientId: "c3",
-    clientName: "Carla Dias",
-    restaurantId: "r1",
-    restaurantName: "Pizza da Boa",
-    status: "on_the_way",
-    createdAt: new Date(Date.now() - 1000000).toISOString(),
-    totalValue: 25.0,
-    items: [],
-  },
-];
+import "./Admin.css";
 
 export const OrdersList: React.FC = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simula chamada de API
-    setTimeout(() => {
-      setOrders(mockOrders);
-      setIsLoading(false);
-    }, 500);
+    loadOrders();
   }, []);
+
+  const loadOrders = () => {
+    setIsLoading(true);
+    orderService.getAllOrders()
+      .then(data => {
+        setOrders(data);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setError("Erro ao carregar pedidos. Backend ativo?");
+        setIsLoading(false);
+      });
+  };
 
   if (isLoading) return <Loader />;
 
   return (
     <div className="admin-page-container">
-      <h1>Histórico de Pedidos da Plataforma</h1>
+      <h1>Histórico de Pedidos</h1>
 
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>ID Pedido</th>
-            <th>Cliente</th>
-            <th>Restaurante</th>
-            <th>Data</th>
-            <th>Status</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((order) => (
-            <tr key={order.id}>
-              <td>#{order.id}</td>
-              <td>{order.clientName}</td>
-              <td>{order.restaurantName}</td>
-              <td>{formatDate(order.createdAt)}</td>
-              <td>
-                <span className={`status-badge status-${order.status}`}>
-                  {order.status}
-                </span>
-              </td>
-              <td>{formatCurrency(order.totalValue)}</td>
+      {error && <div className="error-message" style={{color: 'red', marginBottom: '20px'}}>{error}</div>}
+
+      {orders.length === 0 && !error ? (
+         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+          <p>Nenhum pedido registrado no sistema.</p>
+        </div>
+      ) : (
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Restaurante</th>
+              <th>Data</th>
+              <th>Status</th>
+              <th>Itens</th>
+              <th>Total</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {orders.map((order) => (
+              <tr key={order.id}>
+                <td>#{order.id}</td>
+                <td>{order.clientName}</td>
+                <td>{order.restaurantName}</td>
+                <td>{formatDate(order.createdAt)}</td>
+                <td>
+                  <span className="status-badge">
+                    {order.status}
+                  </span>
+                </td>
+                <td style={{ fontSize: '0.85rem', color: '#555' }}>
+                  {order.items.map(i => (
+                    <div key={i.id_item}>
+                      {i.quantidade}x {i.descricao}
+                    </div>
+                  ))}
+                </td>
+                <td><strong>{formatCurrency(order.totalValue)}</strong></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

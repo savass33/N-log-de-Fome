@@ -1,23 +1,18 @@
-import { type IMenuItem } from './IMenuItem';
+export type OrderStatus = 'Preparando' | 'Entregue' | 'Caminho'; // Valores do seu ENUM no banco
 
-export type OrderStatus = 'pending' | 'preparing' | 'on_the_way' | 'delivered' | 'cancelled';
-
-// Item *dentro* de um pedido
 export interface IOrderItem {
-  menuItem: IMenuItem;
-  quantity: number;
-  observation?: string;
+  id_item: number;
+  descricao: string; // No banco é "descrição", vamos mapear
+  quantidade: number;
+  preco: number;
 }
 
 export interface IOrder {
   id: string;
-  clientId: string; // ID do cliente
-  restaurantId: string; // ID do restaurante
-  items: IOrderItem[];
-  totalValue: number;
+  clientName: string;
+  restaurantName: string;
   status: OrderStatus;
   createdAt: string;
-  // Opcional: podemos carregar os objetos completos depois
-  clientName?: string; 
-  restaurantName?: string;
+  totalValue: number;
+  items: IOrderItem[];
 }
