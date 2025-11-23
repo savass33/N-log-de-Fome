@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { type IMenuItem } from "../../interfaces/IMenuItem";
 import { Card } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
@@ -7,18 +7,39 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import "../Restaurants/Restaurant.css";
 import { ConfirmModal } from "../../components/modais/ConfirmModal";
 import { MenuFormModal } from "../../components/modais/MenuForm";
+import { menuService } from "../../services/menuService"; // Service novo
+import { useAuth } from "../../hooks/useAuth";
 
 export const MenuManagement: React.FC = () => {
+  const { user } = useAuth();
   const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // --- Modais ---
+  // Estados dos Modais
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<IMenuItem | null>(null);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-  // --- Handlers ---
+  useEffect(() => {
+    if (user?.restaurantId) {
+      loadMenu(user.restaurantId);
+    }
+  }, [user]);
+
+  const loadMenu = async (restaurantId: string) => {
+    setIsLoading(true);
+    try {
+      const data = await menuService.getMenuByRestaurant(restaurantId);
+      setMenuItems(data);
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao carregar cardápio.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleOpenAddItem = () => {
     setItemToEdit(null);
     setIsFormModalOpen(true);
@@ -35,20 +56,21 @@ export const MenuManagement: React.FC = () => {
   };
 
   const handleSaveItem = async (item: IMenuItem) => {
+    if (!user?.restaurantId) return;
+
     setIsLoading(true);
     try {
-      // SIMULAÇÃO DE BACKEND (Substituir por api.post/put quando tiver tabela)
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       if (itemToEdit) {
-        setMenuItems((prev) => prev.map((m) => (m.id === item.id ? item : m)));
-        alert("Item atualizado com sucesso!");
+        // Edição
+        await menuService.updateItem(itemToEdit.id, item);
+        alert("Item atualizado!");
       } else {
-        // Gera ID único simulado
-        const newItem = { ...item, id: Date.now().toString() };
-        setMenuItems((prev) => [newItem, ...prev]);
-        alert("Item adicionado ao cardápio!");
+        // Criação
+        await menuService.createItem(user.restaurantId, item);
+        alert("Item criado!");
       }
+      // Recarrega a lista do banco
+      await loadMenu(user.restaurantId);
     } catch (error) {
       console.error(error);
       alert("Erro ao salvar item.");
@@ -58,13 +80,12 @@ export const MenuManagement: React.FC = () => {
   };
 
   const handleConfirmDelete = async () => {
-    if (itemToDelete) {
+    if (itemToDelete && user?.restaurantId) {
       setIsLoading(true);
       try {
-        // SIMULAÇÃO DE DELETE
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setMenuItems((prev) => prev.filter((item) => item.id !== itemToDelete));
+        await menuService.deleteItem(itemToDelete);
         alert("Item removido.");
+        await loadMenu(user.restaurantId);
       } catch (error) {
         alert("Erro ao remover item.");
       } finally {
@@ -87,7 +108,7 @@ export const MenuManagement: React.FC = () => {
       {menuItems.length === 0 ? (
         <Card>
           <p style={{ textAlign: "center", color: "#666" }}>
-            Seu cardápio está vazio. Adicione itens para começar a vender.
+            Seu cardápio está vazio no banco de dados.
           </p>
         </Card>
       ) : (
@@ -97,7 +118,19 @@ export const MenuManagement: React.FC = () => {
               <div className="menu-item-details">
                 <h3>{item.name}</h3>
                 <p>{item.description}</p>
-                <strong>{formatCurrency(item.price)}</strong>
+                <span
+                  style={{
+                    fontSize: "0.8rem",
+                    background: "#eee",
+                    padding: "2px 6px",
+                    borderRadius: "4px",
+                  }}
+                >
+                  {item.category}
+                </span>
+                <strong style={{ display: "block", marginTop: "8px" }}>
+                  {formatCurrency(item.price)}
+                </strong>
               </div>
               <div className="menu-item-actions">
                 <Button onClick={() => handleOpenEditItem(item)}>Editar</Button>

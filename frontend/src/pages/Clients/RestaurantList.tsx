@@ -71,15 +71,7 @@ export const RestaurantsList: React.FC = () => {
               className="restaurant-card-link"
             >
               <Card>
-                {/* Fallback image se não tiver URL */}
-                <img
-                  src={
-                    resto.imageUrl ||
-                    "https://placehold.co/400x200/e63946/white?text=Restaurante"
-                  }
-                  alt={resto.name}
-                  className="restaurant-card-image"
-                />
+                
                 <div className="restaurant-card-content">
                   <h3>{resto.name}</h3>
                   <p>

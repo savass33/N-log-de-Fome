@@ -3,11 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
 import { type IOrder } from "../../interfaces/IOrder";
-import { orderService } from "../../services/orderService"; // Serviço Real
+import { orderService } from "../../services/orderService";
 import { Loader } from "../../components/common/Loader";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { formatDate } from "../../utils/formatDate";
-import "../Admin/Admin.css";
+import "../Admin/Admin.css"; // Mantemos para estilos globais, mas usamos inline para ajustes finos
 
 export const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,21 +36,22 @@ export const OrderDetails: React.FC = () => {
     }
   };
 
-  // Helpers visuais para o Status (Mesma lógica da lista)
-  const getStatusColor = (status: string) => {
+  // --- Lógica de Cores e Textos (Padronizada com OrdersHistory) ---
+  const getStatusConfig = (status: string) => {
     const s = status?.toLowerCase() || "";
-    if (s.includes("entregue") || s.includes("concluido")) return "#d4edda";
-    if (s.includes("cancelado")) return "#f8d7da";
-    if (s.includes("preparo") || s.includes("andamento")) return "#fff3cd";
-    return "#e2e3e5";
-  };
 
-  const getStatusTextColor = (status: string) => {
-    const s = status?.toLowerCase() || "";
-    if (s.includes("entregue")) return "#155724";
-    if (s.includes("cancelado")) return "#721c24";
-    if (s.includes("preparo")) return "#856404";
-    return "#383d41";
+    if (s.includes("pendente"))
+      return { bg: "#fff3cd", color: "#856404", label: "Pendente" };
+    if (s.includes("preparando") || s.includes("preparing"))
+      return { bg: "#ffecb5", color: "#664d03", label: "Em Preparo" };
+    if (s.includes("caminho") || s.includes("way"))
+      return { bg: "#cff4fc", color: "#055160", label: "A Caminho" };
+    if (s.includes("entregue") || s.includes("delivered"))
+      return { bg: "#d1e7dd", color: "#0f5132", label: "Entregue" };
+    if (s.includes("cancelado") || s.includes("canceled"))
+      return { bg: "#f8d7da", color: "#842029", label: "Cancelado" };
+
+    return { bg: "#e2e3e5", color: "#383d41", label: status };
   };
 
   if (isLoading) return <Loader />;
@@ -58,102 +59,154 @@ export const OrderDetails: React.FC = () => {
   if (error) {
     return (
       <div className="admin-page-container">
-        <div className="error-message" style={{ color: "red" }}>
+        <div
+          className="error-message"
+          style={{
+            color: "#721c24",
+            backgroundColor: "#f8d7da",
+            padding: "20px",
+            borderRadius: "8px",
+            marginBottom: "20px",
+          }}
+        >
           {error}
         </div>
-        <Button onClick={() => navigate(-1)} style={{ marginTop: "20px" }}>
-          Voltar
-        </Button>
+        <Button onClick={() => navigate(-1)}>Voltar</Button>
       </div>
     );
   }
 
   if (!order) return <p>Pedido não encontrado.</p>;
 
+  const statusStyle = getStatusConfig(order.status);
+
   return (
     <div className="admin-page-container">
+      {/* Cabeçalho da Página */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "20px",
+          marginBottom: "24px",
         }}
       >
-        <h1>Detalhes do Pedido #{order.id}</h1>
+        <h1 style={{ margin: 0 }}>Pedido #{order.id}</h1>
         <Button
           onClick={() => navigate(-1)}
-          style={{ backgroundColor: "#666" }}
+          style={{ backgroundColor: "#6c757d", fontSize: "0.9rem" }}
         >
           Voltar
         </Button>
       </div>
 
       <div className="order-details-grid">
-        {/* CARD DE RESUMO */}
+        {/* CARD 1: Informações Gerais */}
         <Card title="Resumo do Pedido">
-          <div className="order-summary-details">
-            <p>
-              <strong>Cliente:</strong> {order.clientName}
-            </p>
-            <p>
-              <strong>Restaurante:</strong> {order.restaurantName}
-            </p>
-            <p>
-              <strong>Data:</strong> {formatDate(order.createdAt)}
-            </p>
-            <div style={{ margin: "10px 0" }}>
-              <strong>Status: </strong>
-              <span
-                className="status-badge"
-                style={{
-                  backgroundColor: getStatusColor(order.status),
-                  color: getStatusTextColor(order.status),
-                  padding: "4px 10px",
-                  borderRadius: "15px",
-                  fontWeight: "bold",
-                }}
-              >
-                {order.status}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+          >
+            {/* Badge de Status em Destaque */}
+            <div
+              style={{
+                alignSelf: "flex-start",
+                backgroundColor: statusStyle.bg,
+                color: statusStyle.color,
+                padding: "10px 20px",
+                borderRadius: "50px",
+                fontWeight: "bold",
+                fontSize: "1rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                border: `1px solid ${statusStyle.color}30`,
+                marginBottom: "10px",
+              }}
+            >
+              {statusStyle.label}
+            </div>
+
+            <div style={{ fontSize: "1.05rem" }}>
+              <strong>Restaurante:</strong> <br />
+              <span style={{ color: "#555" }}>{order.restaurantName}</span>
+            </div>
+
+            <div style={{ fontSize: "1.05rem" }}>
+              <strong>Data do Pedido:</strong> <br />
+              <span style={{ color: "#555" }}>
+                {formatDate(order.createdAt)}
               </span>
             </div>
-            <p style={{ fontSize: "1.2rem", marginTop: "15px" }}>
-              <strong>Total:</strong> {formatCurrency(order.totalValue)}
-            </p>
+
+            <hr
+              style={{
+                border: "0",
+                borderTop: "1px solid #eee",
+                margin: "10px 0",
+              }}
+            />
+
+            {/* Total em Destaque */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#f8f9fa",
+                padding: "15px",
+                borderRadius: "8px",
+              }}
+            >
+              <span style={{ fontSize: "1.1rem", color: "#555" }}>
+                Total Pago:
+              </span>
+              <strong style={{ fontSize: "1.6rem", color: "#28a745" }}>
+                {formatCurrency(order.totalValue)}
+              </strong>
+            </div>
           </div>
         </Card>
 
-        {/* CARD DE ITENS */}
-        <Card title="Itens do Pedido">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th style={{ textAlign: "center" }}>Qtd.</th>
-                <th style={{ textAlign: "right" }}>Preço Unit.</th>
-                <th style={{ textAlign: "right" }}>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.items.map((item) => (
-                <tr key={item.id_item}>
-                  <td>
-                    {/* Adaptação: O service retorna 'descricao', não 'menuItem.name' */}
-                    {item.descricao}
-                  </td>
-                  <td style={{ textAlign: "center" }}>{item.quantidade}</td>
-                  <td style={{ textAlign: "right" }}>
-                    {formatCurrency(item.preco)}
-                  </td>
-                  <td style={{ textAlign: "right" }}>
-                    <strong>
-                      {formatCurrency(item.preco * item.quantidade)}
-                    </strong>
-                  </td>
+        {/* CARD 2: Lista de Itens */}
+        <Card title="Itens Comprados">
+          {order.items.length === 0 ? (
+            <p style={{ color: "#999", fontStyle: "italic" }}>
+              Nenhum item registrado neste pedido.
+            </p>
+          ) : (
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th style={{ width: "50%" }}>Item</th>
+                  <th style={{ textAlign: "center", width: "15%" }}>Qtd.</th>
+                  <th style={{ textAlign: "right", width: "15%" }}>Unit.</th>
+                  <th style={{ textAlign: "right", width: "20%" }}>Subtotal</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {order.items.map((item) => (
+                  <tr key={item.id_item}>
+                    <td>
+                      <div style={{ fontWeight: "600", color: "#333" }}>
+                        {item.descricao}
+                      </div>
+                    </td>
+                    <td style={{ textAlign: "center", color: "#666" }}>
+                      {item.quantidade}
+                    </td>
+                    <td style={{ textAlign: "right", color: "#666" }}>
+                      {formatCurrency(item.preco)}
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      <strong>
+                        {formatCurrency(item.preco * item.quantidade)}
+                      </strong>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </Card>
       </div>
     </div>
