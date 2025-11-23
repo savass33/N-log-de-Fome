@@ -18,34 +18,34 @@ export const Register: React.FC = () => {
 
   // --- UTILITÁRIOS DE VALIDAÇÃO E MÁSCARA ---
 
-  // Máscara de Telefone: (11) 99999-9999
   const formatPhone = (value: string) => {
-    // Remove tudo que não é dígito
     const numbers = value.replace(/\D/g, "");
-
-    // Limita a 11 dígitos
     const limited = numbers.slice(0, 11);
-
-    // Aplica a formatação visual
     return limited
-      .replace(/^(\d{2})(\d)/g, "($1) $2") // Coloca parênteses no DDD
-      .replace(/(\d)(\d{4})$/, "$1-$2"); // Coloca hífen
+      .replace(/^(\d{2})(\d)/g, "($1) $2")
+      .replace(/(\d)(\d{4})$/, "$1-$2");
   };
 
-  // Handler para o input de telefone
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhone(formatPhone(e.target.value));
   };
 
-  // Validação de Nome (Apenas letras e espaços, aceita acentos)
   const isValidName = (name: string) => {
+    // Aceita letras, espaços e acentos. Rejeita números e símbolos.
     const regex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/;
     return regex.test(name);
   };
 
-  // Validação de Email
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  // PADRÃO OURO: Validação de Endereço (Letras + Números)
+  const isValidAddress = (addr: string) => {
+    // Deve conter pelo menos uma letra E pelo menos um dígito (número da casa)
+    const hasLetters = /[a-zA-ZÀ-ÖØ-öø-ÿ]/.test(addr);
+    const hasNumbers = /\d/.test(addr);
+    return hasLetters && hasNumbers;
   };
 
   // --- LÓGICA DE SUBMISSÃO ---
@@ -56,38 +56,39 @@ export const Register: React.FC = () => {
     // 1. Sanitização
     const cleanName = name.trim();
     const cleanEmail = email.trim();
-    const cleanPhone = phone.replace(/\D/g, ""); // Remove máscara para contar dígitos
+    const cleanPhone = phone.replace(/\D/g, "");
     const cleanAddress = address.trim();
     const cleanCuisine = cuisineType.trim();
 
-    // 2. Validações Rigorosas (Tratamento de Exceção)
+    // 2. Validações Rigorosas
 
-    // Validação de Nome
-    if (cleanName.length < 3) {
+    // Nome
+    if (cleanName.length < 3)
       return alert("O nome deve ter pelo menos 3 letras.");
-    }
-    if (!isValidName(cleanName)) {
-      return alert("O nome não pode conter números ou símbolos especiais.");
-    }
+    if (!isValidName(cleanName))
+      return alert("O nome não pode conter números ou símbolos.");
 
-    // Validação de Email
-    if (!isValidEmail(cleanEmail)) {
+    // Email
+    if (!isValidEmail(cleanEmail))
       return alert("Por favor, insira um e-mail válido.");
-    }
 
-    // Validação de Telefone (Mínimo 10 dígitos: DDD + 8 números)
-    if (cleanPhone.length < 10) {
+    // Telefone
+    if (cleanPhone.length < 10)
       return alert("O telefone deve conter DDD e o número completo.");
+
+    // Endereço (Cliente/Restaurante)
+    if (role === "client" || role === "restaurant") {
+      if (cleanAddress.length < 5) {
+        return alert("Endereço muito curto. Informe Rua, Número e Bairro.");
+      }
+      if (!isValidAddress(cleanAddress)) {
+        return alert(
+          "O endereço deve conter o nome da rua e o número (Ex: Rua das Flores, 123)."
+        );
+      }
     }
 
-    // Validações Específicas por Perfil
-    if (
-      (role === "client" || role === "restaurant") &&
-      cleanAddress.length < 5
-    ) {
-      return alert("Por favor, insira um endereço completo e válido.");
-    }
-
+    // Tipo de Cozinha (Restaurante)
     if (role === "restaurant" && cleanCuisine.length < 3) {
       return alert(
         "Por favor, informe o tipo de cozinha (ex: Italiana, Lanches)."
@@ -98,12 +99,11 @@ export const Register: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Payload dinâmico baseado no papel
       if (role === "client") {
         await api.post("/clientes", {
           nome: cleanName,
           email: cleanEmail,
-          telefone: phone, // Envia formatado ou cleanPhone, depende do gosto. Geralmente formatado ajuda na leitura.
+          telefone: phone, // Envia formatado para facilitar leitura
           endereco: cleanAddress,
         });
       } else if (role === "restaurant") {
@@ -123,14 +123,13 @@ export const Register: React.FC = () => {
       }
 
       alert("Cadastro realizado com sucesso! Faça login para continuar.");
-      navigate("/"); // Redireciona para Login
-    } catch (error) {
+      navigate("/");
+    } catch (error: any) {
       console.error("Erro no cadastro:", error);
-      // Tenta pegar mensagem de erro específica do backend se existir
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // Tenta pegar mensagem específica do backend (ex: "Email duplicado")
       const errorMsg =
-        (error as any).response?.data?.error ||
-        "Erro ao realizar cadastro. Verifique se o e-mail já existe.";
+        error.response?.data?.error ||
+        "Erro ao realizar cadastro. Verifique seus dados.";
       alert(errorMsg);
     } finally {
       setIsLoading(false);
@@ -146,15 +145,20 @@ export const Register: React.FC = () => {
         <form onSubmit={handleRegister} className="auth-form">
           <div className="form-group">
             <label>Quero me cadastrar como:</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as UserRole)}
-              className="auth-input"
-            >
-              <option value="client">Cliente</option>
-              <option value="restaurant">Restaurante</option>
-              <option value="admin">Administrador</option>
-            </select>
+            <div className="role-selector">
+              {" "}
+              {/* Usando o seletor visual melhorado */}
+              {/* ... (pode manter o select ou usar o visual de botões do Login se preferir) ... */}
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value as UserRole)}
+                className="auth-input"
+              >
+                <option value="client">Cliente</option>
+                <option value="restaurant">Restaurante</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
           </div>
 
           <div className="form-group">
@@ -167,7 +171,7 @@ export const Register: React.FC = () => {
               onChange={(e) => setName(e.target.value)}
               className="auth-input"
               required
-              placeholder="Digite seu nome"
+              placeholder="Digite apenas letras"
               minLength={3}
             />
           </div>
@@ -189,15 +193,14 @@ export const Register: React.FC = () => {
             <input
               type="text"
               value={phone}
-              onChange={handlePhoneChange} // Usa a máscara aqui
+              onChange={handlePhoneChange}
               className="auth-input"
               required
               placeholder="(XX) XXXXX-XXXX"
-              maxLength={15} // Limite visual da máscara
+              maxLength={15}
             />
           </div>
 
-          {/* O Endereço aparece para CLIENTE e RESTAURANTE */}
           {(role === "client" || role === "restaurant") && (
             <div className="form-group">
               <label>
@@ -210,13 +213,15 @@ export const Register: React.FC = () => {
                 onChange={(e) => setAddress(e.target.value)}
                 className="auth-input"
                 required
-                placeholder="Rua, Número, Bairro"
+                placeholder="Rua, Número e Bairro"
                 minLength={5}
               />
+              <small style={{ color: "#666", fontSize: "0.8rem" }}>
+                Ex: Av Paulista, 1500
+              </small>
             </div>
           )}
 
-          {/* Apenas Restaurante */}
           {role === "restaurant" && (
             <div className="form-group">
               <label>Tipo de Cozinha</label>

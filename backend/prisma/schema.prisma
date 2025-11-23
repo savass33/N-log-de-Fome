@@ -17,12 +17,6 @@ model cliente {
   pedido     pedido[]
 }
 
-model entregador {
-  id_entregador  Int                        @id @default(autoincrement())
-  nome           String?                    @db.VarChar(100)
-  status_entrega entregador_status_entrega? @default(Caminho)
-}
-
 model itempedido {
   id_item      Int     @id @default(autoincrement())
   id_pedido_fk Int
@@ -77,11 +71,6 @@ model item_cardapio {
   restaurante       restaurante @relation(fields: [id_restaurante_fk], references: [id_restaurante], onDelete: Cascade, onUpdate: NoAction, map: "fk_cardapio_restaurante")
 
   @@index([id_restaurante_fk], map: "fk_cardapio_restaurante")
-}
-
-enum entregador_status_entrega {
-  Entregue
-  Caminho
 }
 
 enum pedido_status_pedido {
