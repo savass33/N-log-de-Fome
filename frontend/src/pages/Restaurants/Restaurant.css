@@ -1,0 +1,99 @@
+.restaurant-page-container {
+  max-width: 900px;
+}
+
+.restaurant-page-container h1 {
+  margin-bottom: 24px;
+}
+
+.restaurant-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.restaurant-page-header h1 {
+  margin: 0;
+}
+.restaurant-page-header .btn-add-new {
+  background-color: var(--success-color);
+}
+
+.restaurant-card-margin-top {
+  margin-top: 24px;
+}
+
+/* MyRestaurant */
+.restaurant-profile-header {
+  text-align: center;
+}
+.restaurant-logo {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 16px;
+  border: 4px solid var(--border-color);
+}
+.restaurant-profile-header h2 {
+  margin-bottom: 4px;
+}
+.restaurant-profile-header p {
+  color: var(--text-color-light);
+  font-size: 0.9rem;
+}
+
+/* Formulário (MyRestaurant, RestaurantSettings) */
+.restaurant-form .form-group {
+  margin-bottom: 16px;
+}
+.restaurant-form label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.restaurant-form .input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+/* MenuManagement */
+.menu-items-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.menu-item-card .card-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.menu-item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.menu-item-details {
+  flex: 1;
+}
+.menu-item-details p {
+  font-size: 0.9rem;
+  color: var(--text-color-light);
+  margin-bottom: 8px;
+}
+.menu-item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.menu-item-actions .btn {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+.menu-item-actions .btn-danger {
+  background-color: var(--primary-color);
+}

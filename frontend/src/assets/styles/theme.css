@@ -1,0 +1,22 @@
+:root {
+  --primary-color: #D93025;
+  --primary-color-dark: #B71C1C;
+  --primary-color-light: #FFCDD2;
+
+  --secondary-color: #F2994A;
+  --secondary-color-dark: #E65100;
+
+  --success-color: #2E7D32;
+  --success-color-light: #C8E6C9;
+
+  --bg-color: #F5F5F5;      
+  --surface-color: #FFFFFF; 
+  --text-color: #333333;   
+  --text-color-light: #757575;
+  --border-color: #E0E0E0;   
+
+  --status-preparing: #ffa23e;
+  --status-on-way: #4FC3F7;   
+  --status-delivered: #81C784;
+  --status-cancelled: #E57373;
+}
