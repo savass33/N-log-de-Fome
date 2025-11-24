@@ -19,13 +19,13 @@ export const MyRestaurant: React.FC = () => {
     if (user) {
       setName(user.name || "");
       setAddress(user.address || "");
-      if (user.phone) setPhone(formatPhone(user.phone)); // Formata ao carregar
+      if (user.phone) setPhone(formatPhone(user.phone));
       if (user.restaurantId) loadRestaurantData(user.restaurantId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  // --- Máscara de Telefone (Reutilizável) ---
+  // --- Máscara de Telefone ---
   const formatPhone = (val: string) => {
     if (!val) return "";
     const value = val.replace(/\D/g, "");
@@ -37,6 +37,16 @@ export const MyRestaurant: React.FC = () => {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhone(formatPhone(e.target.value));
+  };
+
+  // --- Filtro de Tipo de Cozinha (Sem Números) ---
+  const handleCuisineChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    // Regex: Permite apenas Letras (com acentos) e espaços
+    // Bloqueia números e símbolos especiais
+    if (/^[A-Za-zÀ-ÖØ-öø-ÿ\s]*$/.test(val)) {
+      setCuisine(val);
+    }
   };
 
   const loadRestaurantData = async (id: string) => {
@@ -58,18 +68,23 @@ export const MyRestaurant: React.FC = () => {
     const cleanName = name.trim();
     const cleanAddress = address.trim();
     const cleanPhone = phone.replace(/\D/g, "");
+    const cleanCuisine = cuisine.trim();
 
     if (cleanName.length < 3) return alert("Nome inválido.");
     if (cleanAddress.length < 5) return alert("Endereço incompleto.");
     if (cleanPhone.length < 10) return alert("Telefone inválido.");
+
+    if (cleanCuisine.length < 3) {
+      return alert("Tipo de cozinha inválido (mínimo 3 letras).");
+    }
 
     setIsLoading(true);
     try {
       await restaurantService.updateRestaurant(user.restaurantId, {
         name: cleanName,
         address: cleanAddress,
-        phone: phone, // Envia formatado
-        cuisineType: cuisine,
+        phone: phone,
+        cuisineType: cleanCuisine,
       });
 
       updateUserSession({
@@ -115,15 +130,19 @@ export const MyRestaurant: React.FC = () => {
               disabled={isLoading}
             />
           </div>
+
           <div className="form-group">
             <label htmlFor="cuisine">Tipo de Cozinha</label>
             <Input
               id="cuisine"
               value={cuisine}
-              onChange={(e) => setCuisine(e.target.value)}
+              // CORREÇÃO: Usa o handler com validação
+              onChange={handleCuisineChange}
               disabled={isLoading}
+              placeholder="Ex: Italiana (Apenas letras)"
             />
           </div>
+
           <div className="form-group">
             <label htmlFor="address">Endereço</label>
             <Input
@@ -133,17 +152,19 @@ export const MyRestaurant: React.FC = () => {
               disabled={isLoading}
             />
           </div>
+
           <div className="form-group">
             <label htmlFor="phone">Telefone de Contato</label>
             <Input
               id="phone"
               value={phone}
-              onChange={handlePhoneChange} // Máscara
+              onChange={handlePhoneChange}
               disabled={isLoading}
               placeholder="(XX) XXXXX-XXXX"
               maxLength={15}
             />
           </div>
+
           <Button
             onClick={handleSaveChanges}
             type="button"
