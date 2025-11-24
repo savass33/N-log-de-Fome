@@ -19,7 +19,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
 }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState<string>(""); // String evita NaN no input
+  const [price, setPrice] = useState<string>("");
   const [category, setCategory] = useState("");
 
   useEffect(() => {
@@ -41,15 +41,11 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Sanitização
     const cleanName = name.trim();
     const cleanCategory = category.trim();
     const cleanDescription = description.trim();
-
-    // Converte vírgula para ponto caso o usuário use padrão brasileiro (ex: 10,50 -> 10.50)
     const numericPrice = parseFloat(price.replace(",", "."));
 
-    // 2. Tratamento de Exceções
     if (cleanName.length < 2) {
       return alert("O nome do item deve ter pelo menos 2 letras.");
     }

@@ -14,8 +14,6 @@ export const MenuManagement: React.FC = () => {
   const { user } = useAuth();
   const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Estados dos Modais
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<IMenuItem | null>(null);
@@ -25,7 +23,7 @@ export const MenuManagement: React.FC = () => {
     if (user?.restaurantId) {
       loadMenu(user.restaurantId);
     } else {
-      setIsLoading(false); // Para não ficar carregando eternamente se não tiver ID
+      setIsLoading(false);
     }
   }, [user]);
 
@@ -36,7 +34,6 @@ export const MenuManagement: React.FC = () => {
       setMenuItems(data);
     } catch (error) {
       console.error(error);
-      // Não alertamos erro aqui para não assustar se for apenas vazio ou erro de rede momentâneo
     } finally {
       setIsLoading(false);
     }
@@ -64,15 +61,12 @@ export const MenuManagement: React.FC = () => {
     setIsLoading(true);
     try {
       if (itemToEdit) {
-        // Edição Real
         await menuService.updateItem(itemToEdit.id, item);
         alert("Item atualizado com sucesso!");
       } else {
-        // Criação Real
         await menuService.createItem(user.restaurantId, item);
         alert("Item adicionado ao cardápio!");
       }
-      // Recarrega do banco para garantir sincronia
       await loadMenu(user.restaurantId);
     } catch (error) {
       console.error(error);

@@ -1,4 +1,3 @@
-/* --- Estilos Gerais da Página do Cliente --- */
 .client-page-container h1 {
   margin-bottom: 24px;
 }
@@ -8,7 +7,6 @@
   margin-bottom: 24px;
 }
 
-/* --- RestaurantsList.tsx --- */
 .restaurant-list-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -37,7 +35,6 @@
   margin-bottom: 0;
 }
 
-/* --- OrdersHistory.tsx --- */
 .orders-history-list {
   display: flex;
   flex-direction: column;
@@ -62,7 +59,6 @@
   font-size: 0.8rem;
 }
 
-/* --- Badge de Status (para OrdersHistory) --- */
 .status-badge {
   padding: 4px 8px;
   border-radius: 12px;
@@ -87,26 +83,23 @@
   background-color: var(--status-cancelled);
 }
 
-/* --- RestaurantMenu.tsx --- */
 .menu-page-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr; /* Cardápio (esq) | Carrinho (dir) */
+  grid-template-columns: 2fr 1fr;
   gap: 30px;
   align-items: start;
 }
 
 @media (max-width: 900px) {
   .menu-page-layout {
-    grid-template-columns: 1fr; /* Empilha no mobile */
+    grid-template-columns: 1fr;
   }
 
-  /* No mobile, o carrinho vira uma barra fixa embaixo */
   .cart-sidebar {
     display: none;
   }
 }
 
-/* Header do Restaurante */
 .menu-page-header {
   background: white;
   padding: 24px;
@@ -131,7 +124,6 @@
   color: #333;
 }
 
-/* Grid de Itens */
 .menu-item-list {
   display: grid;
   grid-template-columns: 1fr;
@@ -140,7 +132,7 @@
 
 .menu-item-card {
   display: flex;
-  flex-direction: row; /* Imagem lado a lado */
+  flex-direction: row;
   border: 1px solid #eee;
   transition: all 0.2s;
   overflow: hidden;
@@ -172,7 +164,6 @@
   margin-top: 8px;
 }
 
-/* Controles de Quantidade */
 .quantity-control {
   display: flex;
   align-items: center;
@@ -207,7 +198,6 @@
   text-align: center;
 }
 
-/* --- Sidebar do Carrinho (Desktop) --- */
 .cart-sidebar {
   position: sticky;
   top: 20px;
@@ -242,7 +232,6 @@
   color: #333;
 }
 
-/* --- Barra Flutuante (Mobile) --- */
 .cart-floating-action {
   position: fixed;
   bottom: 0;
@@ -260,10 +249,10 @@
 
 @media (min-width: 901px) {
   .cart-floating-action {
-    display: none; /* Esconde no desktop pois já tem a sidebar */
+    display: none;
   }
 }
-/* --- Checkout.tsx --- */
+
 .checkout-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -336,7 +325,6 @@
   font-size: 1.1rem;
 }
 
-/* --- ClientProfile.tsx --- */
 .profile-form-container {
   max-width: 600px;
 }

@@ -23,7 +23,6 @@ export const RestaurantMenu: React.FC = () => {
   const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Carrinho Local
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
@@ -49,7 +48,6 @@ export const RestaurantMenu: React.FC = () => {
     }
   };
 
-  // Adiciona ou Incrementa
   const handleIncrement = (item: IMenuItem) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.item.id === item.id);
@@ -62,12 +60,11 @@ export const RestaurantMenu: React.FC = () => {
     });
   };
 
-  // Decrementa ou Remove
   const handleDecrement = (itemId: string) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.item.id === itemId);
       if (existing?.qty === 1) {
-        return prev.filter((i) => i.item.id !== itemId); // Remove se for 0
+        return prev.filter((i) => i.item.id !== itemId);
       }
       return prev.map((i) =>
         i.item.id === itemId ? { ...i, qty: i.qty - 1 } : i
@@ -75,16 +72,15 @@ export const RestaurantMenu: React.FC = () => {
     });
   };
 
-  // Pega quantidade atual de um item no carrinho
   const getQty = (itemId: string) => {
     return cart.find((i) => i.item.id === itemId)?.qty || 0;
   };
 
-  // Cálculos de totais
   const cartTotal = cart.reduce(
     (acc, curr) => acc + curr.item.price * curr.qty,
     0
   );
+
   const cartCount = cart.reduce((acc, curr) => acc + curr.qty, 0);
 
   const handleGoToCheckout = () => {
@@ -103,7 +99,6 @@ export const RestaurantMenu: React.FC = () => {
 
   return (
     <div className="client-page-container">
-      {/* Cabeçalho do Restaurante */}
       <div className="menu-page-header">
         <div className="menu-restaurant-info">
           <h1>{restaurant.name}</h1>
@@ -117,7 +112,6 @@ export const RestaurantMenu: React.FC = () => {
       </div>
 
       <div className="menu-page-layout">
-        {/* Coluna da Esquerda: Itens do Cardápio */}
         <div className="menu-section">
           <h2 style={{ marginBottom: "20px" }}>Cardápio</h2>
 
@@ -132,7 +126,6 @@ export const RestaurantMenu: React.FC = () => {
 
                 return (
                   <Card key={item.id} className="menu-item-card">
-                    {/* Informações */}
                     <div className="menu-item-content">
                       <h3>{item.name}</h3>
                       <p
@@ -148,7 +141,6 @@ export const RestaurantMenu: React.FC = () => {
                         {formatCurrency(item.price)}
                       </span>
 
-                      {/* Controles de Quantidade */}
                       {qty === 0 ? (
                         <Button
                           onClick={() => handleIncrement(item)}
@@ -185,7 +177,6 @@ export const RestaurantMenu: React.FC = () => {
           </div>
         </div>
 
-        {/* Coluna da Direita: Resumo do Pedido (Desktop) */}
         <div className="cart-sidebar">
           <h3 style={{ color: "#e63946" }}>Seu Pedido</h3>
 
@@ -224,7 +215,6 @@ export const RestaurantMenu: React.FC = () => {
         </div>
       </div>
 
-      {/* Barra Flutuante (Mobile) - Só aparece se tiver itens */}
       {cartCount > 0 && (
         <div className="cart-floating-action">
           <div>

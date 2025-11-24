@@ -4,9 +4,9 @@ export interface IRestaurant {
   id: string;
   name: string;
   cnpj: string;
-  address: string; // Agora será o endereço REAL, não o tipo de cozinha
-  cuisineType: string; // Adicione este campo se quiser separar as coisas
-  imageUrl: string;
+  email: string;
+  address: string;
+  cuisineType: string;
   openingHours: string;
   responsibleName: string;
   menu: IMenuItem[];

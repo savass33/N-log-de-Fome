@@ -29,7 +29,6 @@ export const RestaurantsList: React.FC = () => {
     }
   };
 
-  // Filtra por nome OU tipo de cozinha
   const filteredRestaurants = restaurants.filter((r) => {
     const search = searchTerm.toLowerCase();
     const nameMatch = (r.name || "").toLowerCase().includes(search);
@@ -80,7 +79,6 @@ export const RestaurantsList: React.FC = () => {
                   <h3>{resto.name}</h3>
                   <p>
                     {resto.cuisineType || "Variada"}
-                    {/* Se o backend mandar tempo de entrega, mostramos aqui. Senão: */}
                     • 30-45 min
                   </p>
                 </div>

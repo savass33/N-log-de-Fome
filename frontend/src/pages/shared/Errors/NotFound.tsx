@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Errors.css'; // CSS novo para páginas de Erro
+import './Errors.css';
 
 export const NotFound: React.FC = () => {
   return (

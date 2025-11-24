@@ -35,7 +35,6 @@ export const Checkout: React.FC = () => {
   const total = subtotal + deliveryFee;
 
   const handlePlaceOrder = async () => {
-    // 1. Validações Robustas
     if (!cartItems.length) return alert("Seu carrinho está vazio.");
 
     if (!user?.clientId) {
@@ -55,7 +54,6 @@ export const Checkout: React.FC = () => {
       return alert("Por favor, informe um endereço de entrega válido.");
     }
 
-    // 2. Envio Seguro
     setIsLoading(true);
     try {
       await orderService.createOrder({

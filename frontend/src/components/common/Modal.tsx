@@ -16,7 +16,6 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   footer,
 }) => {
-  // Efeito para fechar o modal com a tecla 'Escape'
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === "Escape") {

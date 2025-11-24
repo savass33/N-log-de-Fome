@@ -7,7 +7,6 @@ export const authService = {
     const response = await api.post("/auth/login", { email, role });
     const dbUser = response.data;
 
-    // Adapter: Banco -> Frontend
     let user: IUser;
 
     if (role === "client") {

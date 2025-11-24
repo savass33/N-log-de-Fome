@@ -1,7 +1,5 @@
-/* Importa o tema primeiro */
 @import './theme.css';
 
-/* Reset básico */
 * {
   box-sizing: border-box;
   margin: 0;

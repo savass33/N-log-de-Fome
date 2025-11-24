@@ -14,7 +14,6 @@
   background-color: var(--success-color-dark);
 }
 
-/* Estilos da Tabela */
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -47,7 +46,6 @@
   font-size: 0.8rem;
 }
 
-/* Badges de Status (para OrdersList) */
 .status-badge {
   padding: 4px 8px;
   border-radius: 12px;
@@ -61,7 +59,6 @@
 .status-badge.status-delivered { background-color: var(--status-delivered); }
 .status-badge.status-cancelled { background-color: var(--status-cancelled); }
 
-/* Lista de Suporte */
 .support-tickets-list {
   display: grid;
   grid-template-columns: 1fr;
@@ -78,7 +75,6 @@
   opacity: 0.7;
 }
 
-/* Formulário de Configurações */
 .admin-form .form-group {
   margin-bottom: 16px;
 }
@@ -87,7 +83,7 @@
   font-weight: 500;
   margin-bottom: 8px;
 }
-.admin-form .input-field { /* Assumindo que Input.tsx renderiza isso */
+.admin-form .input-field {
   width: 100%;
   padding: 10px;
   border: 1px solid var(--border-color);

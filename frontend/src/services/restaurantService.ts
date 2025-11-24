@@ -6,19 +6,12 @@ export const restaurantService = {
     try {
       const response = await api.get("/restaurantes");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = response.data.map((dbRest: any) => ({
         id: dbRest.id_restaurante.toString(),
         name: dbRest.nome,
         cnpj: dbRest.telefone || "Sem CNPJ",
-
-        // CORREÇÃO: Agora mapeamos o endereço real do banco
         address: dbRest.endereco || "Endereço não informado",
-
-        // Se quiser usar o tipo de cozinha separado (adicione na interface IRestaurant se for usar)
         cuisineType: dbRest.tipo_cozinha,
-
-        imageUrl: "",
         openingHours: "11:00 - 23:00",
         responsibleName: "Gerente",
         menu: [],
@@ -40,12 +33,9 @@ export const restaurantService = {
         id: dbRest.id_restaurante.toString(),
         name: dbRest.nome,
         cnpj: dbRest.telefone || "Sem CNPJ",
-
-        // CORREÇÃO: Mapeamento real
-        address: dbRest.endereco || "Endereço não informado",
-        cuisineType: dbRest.tipo_cozinha,
-
-        imageUrl: "",
+        address: dbRest.endereco || "",
+        cuisineType: dbRest.tipo_cozinha || "",
+        email: dbRest.email || "",
         openingHours: "11:00 - 23:00",
         responsibleName: "Gerente",
         menu: [],
@@ -56,13 +46,12 @@ export const restaurantService = {
     }
   },
 
-  // Atualize o CREATE para enviar o endereço
   createRestaurant: async (restaurant: {
     name: string;
     phone: string;
     cuisineType: string;
     email: string;
-    address: string; // Novo parametro
+    address: string;
   }): Promise<void> => {
     try {
       const payload = {
@@ -70,7 +59,7 @@ export const restaurantService = {
         telefone: restaurant.phone,
         tipo_cozinha: restaurant.cuisineType,
         email: restaurant.email,
-        endereco: restaurant.address, // Envia para o back
+        endereco: restaurant.address,
       };
       await api.post("/restaurantes", payload);
     } catch (error) {
@@ -79,32 +68,27 @@ export const restaurantService = {
     }
   },
 
-  // Atualize o UPDATE
   updateRestaurant: async (
     id: string,
     data: {
       name?: string;
       phone?: string;
       cuisineType?: string;
+      email?: string;
       address?: string;
     }
   ): Promise<void> => {
-    try {
-      const payload = {
-        nome: data.name,
-        telefone: data.phone,
-        tipo_cozinha: data.cuisineType,
-        endereco: data.address,
-      };
-      await api.put(`/restaurantes/${id}`, payload);
-    } catch (error) {
-      console.error(`Erro ao atualizar restaurante ${id}:`, error);
-      throw error;
-    }
+    const payload = {
+      nome: data.name,
+      telefone: data.phone,
+      tipo_cozinha: data.cuisineType,
+      email: data.email,
+      endereco: data.address,
+    };
+    await api.put(`/restaurantes/${id}`, payload);
   },
 
   deleteRestaurant: async (id: string): Promise<void> => {
-    // ... (mantém igual)
     try {
       await api.delete(`/restaurantes/${id}`);
     } catch (error) {

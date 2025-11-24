@@ -3,7 +3,7 @@ import { type IClient } from "../../interfaces/IClient";
 import { clientService } from "../../services/clientService";
 import { Loader } from "../../components/common/Loader";
 import { Button } from "../../components/common/Button";
-import { ConfirmModal } from "../../components/modais/ConfirmModal"; // Importando seu modal
+import { ConfirmModal } from "../../components/modais/ConfirmModal";
 import "./Admin.css";
 
 export const ClientsList: React.FC = () => {
@@ -11,7 +11,6 @@ export const ClientsList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Estado para controlar o Modal de Exclusão
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<string | null>(null);
 
@@ -34,18 +33,15 @@ export const ClientsList: React.FC = () => {
       });
   };
 
-  // Abre o modal
   const handleDeleteClick = (id: string) => {
     setClientToDelete(id);
     setIsDeleteModalOpen(true);
   };
 
-  // Executa a exclusão real
   const confirmDelete = async () => {
     if (clientToDelete) {
       try {
         await clientService.deleteClient(clientToDelete);
-        // Atualiza a lista localmente removendo o item excluído
         setClients((prev) => prev.filter((c) => c.id !== clientToDelete));
         alert("Cliente removido com sucesso.");
       } catch (error) {
@@ -105,7 +101,7 @@ export const ClientsList: React.FC = () => {
                 <td className="admin-table-actions">
                   <Button
                     onClick={() => handleDeleteClick(client.id)}
-                    style={{ backgroundColor: "#D32F2F" }} // Vermelho para perigo
+                    style={{ backgroundColor: "#D32F2F" }}
                   >
                     Excluir
                   </Button>
@@ -116,7 +112,6 @@ export const ClientsList: React.FC = () => {
         </tbody>
       </table>
 
-      {/* Modal de Confirmação */}
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}

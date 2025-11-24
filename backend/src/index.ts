@@ -9,10 +9,8 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
-// Helper para erros genéricos
 const handlePrismaError = (error: any, res: any) => {
   console.error("Erro Prisma:", error);
-  // Erro de registro duplicado (P2002) - tratado manualmente nas rotas, mas bom ter fallback
   if (
     error instanceof Prisma.PrismaClientKnownRequestError &&
     error.code === "P2002"
@@ -24,17 +22,13 @@ const handlePrismaError = (error: any, res: any) => {
     .json({ error: "Erro interno do servidor.", details: String(error) });
 };
 
-// --- ROTA DE HEALTH CHECK ---
 app.get("/api/teste", (req, res) => {
   res.json({
-    message: "🎉 Backend N-log-de-Fome rodando com validações manuais!",
+    message: "Backend rodando",
   });
 });
 
-// ==================================================================
-// 🔐 AUTENTICAÇÃO & ADMIN
-// ==================================================================
-
+// AUTENTICAÇÃO & ADMIN
 app.post("/api/auth/login", async (req, res) => {
   const { email, role } = req.body;
   if (!email) return res.status(400).json({ error: "Email é obrigatório." });
@@ -98,10 +92,8 @@ app.put("/api/admins/:id", async (req, res) => {
   }
 });
 
-// ==================================================================
-// 👤 CLIENTES
-// ==================================================================
 
+// CLIENTES
 app.get("/api/clientes", async (req, res) => {
   try {
     const clientes = await prisma.cliente.findMany();
@@ -169,8 +161,6 @@ app.put("/api/clientes/:id", async (req, res) => {
 app.delete("/api/clientes/:id", async (req, res) => {
   const id = Number(req.params.id);
   try {
-    // Validação manual pois o banco não está com Cascade configurado (assumindo sua preferência anterior)
-    // Se tiver Cascade, isso aqui é redundante mas seguro.
     const temPedidos = await prisma.pedido.findFirst({
       where: { id_cliente_fk: id },
     });
@@ -187,10 +177,7 @@ app.delete("/api/clientes/:id", async (req, res) => {
   }
 });
 
-// ==================================================================
-// 🍽️ RESTAURANTES
-// ==================================================================
-
+// RESTAURANTES
 app.get("/api/restaurantes", async (req, res) => {
   try {
     const restaurantes = await prisma.restaurante.findMany();
@@ -289,10 +276,7 @@ app.delete("/api/restaurantes/:id", async (req, res) => {
   }
 });
 
-// ==================================================================
-// 📦 PEDIDOS
-// ==================================================================
-
+// PEDIDOS
 app.get("/api/pedidos", async (req, res) => {
   try {
     const pedidos = await prisma.pedido.findMany({
@@ -348,7 +332,6 @@ app.get("/api/pedidos/:id", async (req, res) => {
 app.post("/api/pedidos", async (req, res) => {
   const { id_cliente_fk, id_restaurante_fk, itens } = req.body;
 
-  // Validação básica para não quebrar o banco
   if (!id_cliente_fk || !id_restaurante_fk) {
     return res
       .status(400)
@@ -369,7 +352,7 @@ app.post("/api/pedidos", async (req, res) => {
         status_pedido: "Pendente",
         itempedido: {
           create: itens.map((item: any) => ({
-            descri__o: item.descricao || "Item sem nome", // Fallback seguro
+            descri__o: item.descricao || "Item sem nome",
             quantidade: Number(item.quantidade),
             preco: Number(item.preco),
           })),
@@ -387,10 +370,6 @@ app.put("/api/pedidos/:id", async (req, res) => {
   const id = Number(req.params.id);
   const { status_pedido } = req.body;
 
-  console.log(`--- DEBUG PUT PEDIDO ---`);
-  console.log(`ID: ${id}`);
-  console.log(`Recebido do Front: ${status_pedido}`);
-
   if (!status_pedido)
     return res.status(400).json({ error: "Status é obrigatório." });
 
@@ -402,9 +381,8 @@ app.put("/api/pedidos/:id", async (req, res) => {
     canceled: "Cancelado",
   };
 
-  // Normaliza para evitar erro de case sensitive
   const key = String(status_pedido).toLowerCase();
-  const statusParaBanco = statusMap[key] || status_pedido; // Tenta mapear, senão usa original
+  const statusParaBanco = statusMap[key] || status_pedido;
 
   console.log(`Tentando salvar no Prisma: ${statusParaBanco}`);
   try {
@@ -417,15 +395,12 @@ app.put("/api/pedidos/:id", async (req, res) => {
     );
     res.json(pedidoAtualizado);
   } catch (error) {
-    console.error("ERRO PRISMA:", error); // Isso vai te dizer exatamente o porquê
+    console.error("ERRO PRISMA:", error);
     handlePrismaError(error, res);
   }
 });
 
-// ==================================================================
-// 🍔 CARDÁPIO
-// ==================================================================
-
+// CARDÁPIO
 app.get("/api/cardapio/restaurante/:id", async (req, res) => {
   try {
     const itens = await prisma.item_cardapio.findMany({
@@ -499,5 +474,5 @@ app.delete("/api/cardapio/:id", async (req, res) => {
 
 const PORT = 3001;
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor backend rodando em http://localhost:${PORT}`);
+  console.log(`Servidor backend rodando em http://localhost:${PORT}`);
 });

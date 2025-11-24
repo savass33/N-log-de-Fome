@@ -1,9 +1,8 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth"; // 1. Importar o hook
+import { useAuth } from "../../hooks/useAuth";
 import "./Layout.css";
 
-// Definição das rotas para cada perfil
 const adminNav = [
   { path: "/admin/restaurants", label: "Restaurantes" },
   { path: "/admin/clients", label: "Clientes" },
@@ -14,7 +13,7 @@ const restaurantNav = [
   { path: "/restaurant/orders", label: "Pedidos" },
   { path: "/restaurant/menu", label: "Cardápio" },
   { path: "/restaurant/my-restaurant", label: "Meu Restaurante" },
-  { path: "/settings/account", label: "Configurações" }, // Tirar?
+  { path: "/settings/account", label: "Configurações" },
 ];
 
 const clientNav = [
@@ -26,9 +25,8 @@ const clientNav = [
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
-  const { user } = useAuth(); // 2. Usar o hook para saber o perfil
+  const { user } = useAuth();
 
-  // 3. Escolher os links de navegação corretos
   const getNavItems = () => {
     switch (user?.role) {
       case "admin":
@@ -52,7 +50,6 @@ export const Sidebar: React.FC = () => {
       <nav className="sidebar-nav">
         <ul>
           {navItems.map((item) => (
-            // Compara o início do path para manter o item ativo
             <li
               key={item.path}
               className={

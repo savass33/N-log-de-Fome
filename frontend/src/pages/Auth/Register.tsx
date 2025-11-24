@@ -8,15 +8,11 @@ export const Register: React.FC = () => {
   const navigate = useNavigate();
   const [role, setRole] = useState<UserRole>("client");
   const [isLoading, setIsLoading] = useState(false);
-
-  // Estados do Formulário
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [cuisineType, setCuisineType] = useState("");
-
-  // --- UTILITÁRIOS DE VALIDAÇÃO E MÁSCARA ---
 
   const formatPhone = (value: string) => {
     const numbers = value.replace(/\D/g, "");
@@ -31,7 +27,6 @@ export const Register: React.FC = () => {
   };
 
   const isValidName = (name: string) => {
-    // Aceita letras, espaços e acentos. Rejeita números e símbolos.
     const regex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/;
     return regex.test(name);
   };
@@ -40,43 +35,33 @@ export const Register: React.FC = () => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  // PADRÃO OURO: Validação de Endereço (Letras + Números)
   const isValidAddress = (addr: string) => {
-    // Deve conter pelo menos uma letra E pelo menos um dígito (número da casa)
     const hasLetters = /[a-zA-ZÀ-ÖØ-öø-ÿ]/.test(addr);
     const hasNumbers = /\d/.test(addr);
     return hasLetters && hasNumbers;
   };
 
-  // --- LÓGICA DE SUBMISSÃO ---
-
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Sanitização
     const cleanName = name.trim();
     const cleanEmail = email.trim();
     const cleanPhone = phone.replace(/\D/g, "");
     const cleanAddress = address.trim();
     const cleanCuisine = cuisineType.trim();
 
-    // 2. Validações Rigorosas
-
-    // Nome
     if (cleanName.length < 3)
       return alert("O nome deve ter pelo menos 3 letras.");
+
     if (!isValidName(cleanName))
       return alert("O nome não pode conter números ou símbolos.");
 
-    // Email
     if (!isValidEmail(cleanEmail))
       return alert("Por favor, insira um e-mail válido.");
 
-    // Telefone
     if (cleanPhone.length < 10)
       return alert("O telefone deve conter DDD e o número completo.");
 
-    // Endereço (Cliente/Restaurante)
     if (role === "client" || role === "restaurant") {
       if (cleanAddress.length < 5) {
         return alert("Endereço muito curto. Informe Rua, Número e Bairro.");
@@ -88,14 +73,12 @@ export const Register: React.FC = () => {
       }
     }
 
-    // Tipo de Cozinha (Restaurante)
     if (role === "restaurant" && cleanCuisine.length < 3) {
       return alert(
         "Por favor, informe o tipo de cozinha (ex: Italiana, Lanches)."
       );
     }
 
-    // 3. Envio Seguro
     setIsLoading(true);
 
     try {
@@ -103,7 +86,7 @@ export const Register: React.FC = () => {
         await api.post("/clientes", {
           nome: cleanName,
           email: cleanEmail,
-          telefone: phone, // Envia formatado para facilitar leitura
+          telefone: phone,
           endereco: cleanAddress,
         });
       } else if (role === "restaurant") {
@@ -126,7 +109,6 @@ export const Register: React.FC = () => {
       navigate("/");
     } catch (error: any) {
       console.error("Erro no cadastro:", error);
-      // Tenta pegar mensagem específica do backend (ex: "Email duplicado")
       const errorMsg =
         error.response?.data?.error ||
         "Erro ao realizar cadastro. Verifique seus dados.";
@@ -147,8 +129,6 @@ export const Register: React.FC = () => {
             <label>Quero me cadastrar como:</label>
             <div className="role-selector">
               {" "}
-              {/* Usando o seletor visual melhorado */}
-              {/* ... (pode manter o select ou usar o visual de botões do Login se preferir) ... */}
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value as UserRole)}

@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  height: 60vh; /* Centraliza na view */
+  height: 60vh; 
   gap: 16px;
 }
 

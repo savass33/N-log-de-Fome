@@ -9,8 +9,6 @@ export const RestaurantSettings: React.FC = () => {
   const [deliveryFee, setDeliveryFee] = useState("7.50");
 
   const handleSave = () => {
-    // Validação de Taxa
-    // Permite ponto ou vírgula para decimais
     const numericFee = parseFloat(deliveryFee.replace(",", "."));
 
     if (isNaN(numericFee) || numericFee < 0) {
@@ -23,7 +21,6 @@ export const RestaurantSettings: React.FC = () => {
       return alert("Informe o horário de funcionamento.");
     }
 
-    // Salva no localStorage (Simulação de persistência local)
     localStorage.setItem("rest_settings_hours", openingHours);
     localStorage.setItem("rest_settings_fee", numericFee.toString());
 
@@ -49,7 +46,7 @@ export const RestaurantSettings: React.FC = () => {
             <label htmlFor="deliveryFee">Taxa de Entrega (R$)</label>
             <Input
               id="deliveryFee"
-              type="number" // HTML5 ajuda, mas a validação no JS é crucial
+              type="number"
               step="0.50"
               min="0"
               value={deliveryFee}

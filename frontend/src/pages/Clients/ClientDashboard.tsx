@@ -24,12 +24,10 @@ export const ClientDashboard: React.FC = () => {
 
   const loadRecentOrders = async (clientId: string) => {
     try {
-      // Se o backend tiver a rota dedicada, usamos getOrdersByClient
-      // Se não, usamos a lógica de filtro no front (getAllOrders)
-      const allOrders = await orderService.getAllOrders(); // Fallback seguro
+      const allOrders = await orderService.getAllOrders();
 
       const myOrders = allOrders
-        .filter((o) => o.clientName === user?.name) // Ou filtro por ID se disponível
+        .filter((o) => o.clientName === user?.name)
         .sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

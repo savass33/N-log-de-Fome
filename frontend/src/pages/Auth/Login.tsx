@@ -10,7 +10,6 @@ export const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<UserRole>("client");
 
-  // Validador simples de email
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
@@ -18,10 +17,8 @@ export const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Sanitização
     const cleanEmail = email.trim();
 
-    // 2. Validações
     if (!cleanEmail) {
       return alert("Por favor, digite seu e-mail.");
     }
@@ -32,7 +29,6 @@ export const Login: React.FC = () => {
       );
     }
 
-    // 3. Envio
     await login(cleanEmail, role);
   };
 

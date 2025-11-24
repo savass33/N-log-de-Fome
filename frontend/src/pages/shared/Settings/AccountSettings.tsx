@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Card } from "../../../components/common/Card";
 import { Button } from "../../../components/common/Button";
-import { Input } from "../../../components/common/Input";
 import { useAuth } from "../../../hooks/useAuth";
 import { clientService } from "../../../services/clientService";
 import { restaurantService } from "../../../services/restaurantService";
-import { api } from "../../../services/api"; // Para admin direto
+import { api } from "../../../services/api"; 
 import "./Settings.css";
 
 export const AccountSettings: React.FC = () => {
@@ -14,10 +13,8 @@ export const AccountSettings: React.FC = () => {
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  // Adicionamos campos extras caso seja restaurante
   const [address, setAddress] = useState("");
 
-  // Sincroniza com os dados do usuário logado
   useEffect(() => {
     if (user) {
       setName(user.name || "");
@@ -26,7 +23,6 @@ export const AccountSettings: React.FC = () => {
     }
   }, [user]);
 
-  // Utilitário de máscara
   const formatPhone = (val: string) => {
     if (!val) return "";
     const value = val.replace(/\D/g, "");
@@ -43,7 +39,6 @@ export const AccountSettings: React.FC = () => {
   const handleSaveProfile = async () => {
     if (!user || !user.id) return alert("Erro de sessão.");
 
-    // Validações
     if (!name.trim()) return alert("O nome é obrigatório.");
     if (phone.replace(/\D/g, "").length < 10)
       return alert("Telefone inválido.");
@@ -51,30 +46,22 @@ export const AccountSettings: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Remove formatação para envio limpo (opcional, depende do seu padrão)
-      // Aqui mantemos a formatação pois ajuda na visualização
-
-      // Lógica condicional baseada no papel do usuário
       if (user.role === "client") {
-        // Cliente precisa do ID numérico
         const clientId = user.clientId || user.id.replace(/\D/g, "");
         await clientService.updateClient(clientId, {
           name,
           phone,
-          address, // Cliente tem endereço
+          address,
           email: user.email,
         });
       } else if (user.role === "restaurant") {
         const restId = user.restaurantId || user.id.replace(/\D/g, "");
-        // O service de restaurante espera um objeto específico
         await restaurantService.updateRestaurant(restId, {
           name,
           phone,
-          address, // Restaurante tem endereço
-          // cuisineType: mantemos o que já estava se não tiver input aqui
+          address,
         });
       } else if (user.role === "admin") {
-        // Admin chama API direta
         const adminId = user.id.replace(/\D/g, "");
         await api.put(`/admins/${adminId}`, {
           nome: name,
@@ -83,7 +70,6 @@ export const AccountSettings: React.FC = () => {
         });
       }
 
-      // Atualiza a sessão local para refletir na hora (Header, Sidebar, etc)
       updateUserSession({ name, phone, address });
 
       alert("Perfil atualizado com sucesso!");
@@ -142,7 +128,6 @@ export const AccountSettings: React.FC = () => {
             />
           </div>
 
-          {/* Mostra campo endereço apenas para Cliente e Restaurante */}
           {(user.role === "client" || user.role === "restaurant") && (
             <div className="form-group">
               <label htmlFor="address">Endereço</label>

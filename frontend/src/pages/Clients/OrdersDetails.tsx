@@ -7,7 +7,7 @@ import { orderService } from "../../services/orderService";
 import { Loader } from "../../components/common/Loader";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { formatDate } from "../../utils/formatDate";
-import "../Admin/Admin.css"; // Mantemos para estilos globais, mas usamos inline para ajustes finos
+import "../Admin/Admin.css";
 
 export const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,7 +36,6 @@ export const OrderDetails: React.FC = () => {
     }
   };
 
-  // --- Lógica de Cores e Textos (Padronizada com OrdersHistory) ---
   const getStatusConfig = (status: string) => {
     const s = status?.toLowerCase() || "";
 
@@ -82,7 +81,6 @@ export const OrderDetails: React.FC = () => {
 
   return (
     <div className="admin-page-container">
-      {/* Cabeçalho da Página */}
       <div
         style={{
           display: "flex",
@@ -101,12 +99,10 @@ export const OrderDetails: React.FC = () => {
       </div>
 
       <div className="order-details-grid">
-        {/* CARD 1: Informações Gerais */}
         <Card title="Resumo do Pedido">
           <div
             style={{ display: "flex", flexDirection: "column", gap: "16px" }}
           >
-            {/* Badge de Status em Destaque */}
             <div
               style={{
                 alignSelf: "flex-start",
@@ -146,7 +142,6 @@ export const OrderDetails: React.FC = () => {
               }}
             />
 
-            {/* Total em Destaque */}
             <div
               style={{
                 display: "flex",
@@ -167,7 +162,6 @@ export const OrderDetails: React.FC = () => {
           </div>
         </Card>
 
-        {/* CARD 2: Lista de Itens */}
         <Card title="Itens Comprados">
           {order.items.length === 0 ? (
             <p style={{ color: "#999", fontStyle: "italic" }}>

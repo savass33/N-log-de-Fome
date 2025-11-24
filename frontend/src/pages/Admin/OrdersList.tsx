@@ -30,7 +30,6 @@ export const OrdersList: React.FC = () => {
       });
   };
 
-  // --- Lógica de Cores (Padronizada com Client) ---
   const getStatusConfig = (status: string) => {
     const s = status?.toLowerCase() || "";
 

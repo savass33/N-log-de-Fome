@@ -1,7 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import './Errors.css'; // Reutilizando o CSS de Erro
-
+import React from "react";
+import { Link } from "react-router-dom";
+import "./Errors.css";
 export const AccessDenied: React.FC = () => {
   return (
     <div className="error-page-container">

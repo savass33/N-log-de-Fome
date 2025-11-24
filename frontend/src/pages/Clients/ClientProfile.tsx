@@ -36,7 +36,6 @@ export const ClientProfile: React.FC = () => {
   };
 
   const handleSave = async () => {
-    // 1. Validações
     const cleanName = name.trim();
     const cleanAddress = address.trim();
     const cleanPhone = phone.replace(/\D/g, "");
@@ -50,12 +49,11 @@ export const ClientProfile: React.FC = () => {
 
     if (!cleanId) return alert("Erro de sessão. Faça login novamente.");
 
-    // 2. Envio
     setIsSaving(true);
     try {
       await clientService.updateClient(cleanId, {
         name: cleanName,
-        phone: phone, // Salva formatado
+        phone: phone,
         address: cleanAddress,
         email: user?.email,
       });

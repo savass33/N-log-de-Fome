@@ -12,7 +12,6 @@ export const RestaurantsList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Estados Modais
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [restoToDelete, setRestoToDelete] = useState<string | null>(null);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -35,7 +34,6 @@ export const RestaurantsList: React.FC = () => {
     }
   };
 
-  // --- Exclusão ---
   const handleDeleteClick = (id: string) => {
     setRestoToDelete(id);
     setIsDeleteModalOpen(true);
@@ -43,7 +41,7 @@ export const RestaurantsList: React.FC = () => {
 
   const confirmDelete = async () => {
     if (restoToDelete) {
-      setIsLoading(true); // Bloqueia a tela enquanto deleta
+      setIsLoading(true);
       try {
         await restaurantService.deleteRestaurant(restoToDelete);
         setRestaurants((prev) => prev.filter((r) => r.id !== restoToDelete));
@@ -57,7 +55,6 @@ export const RestaurantsList: React.FC = () => {
     }
   };
 
-  // --- Edição/Criação ---
   const handleAddClick = () => {
     setRestoToEdit(null);
     setIsFormModalOpen(true);
@@ -76,20 +73,17 @@ export const RestaurantsList: React.FC = () => {
     email: string;
     address: string;
   }) => {
-    setIsLoading(true); // Bloqueia tela
+    setIsLoading(true);
     try {
       if (formData.id) {
-        // UPDATE
         await restaurantService.updateRestaurant(formData.id, {
           name: formData.name,
           phone: formData.phone,
           cuisineType: formData.cuisineType,
           address: formData.address,
-          // Se o backend suportar update de email, adicione aqui
         });
         alert("Restaurante atualizado!");
       } else {
-        // CREATE
         await restaurantService.createRestaurant({
           name: formData.name,
           phone: formData.phone,
@@ -99,7 +93,7 @@ export const RestaurantsList: React.FC = () => {
         });
         alert("Restaurante criado com sucesso!");
       }
-      await loadRestaurants(); // Recarrega a lista do banco
+      await loadRestaurants();
     } catch (error) {
       console.error(error);
       alert("Erro ao salvar restaurante. Verifique se o e-mail já existe.");

@@ -3,6 +3,7 @@ import { Modal } from "../../components/common/Modal";
 import { Button } from "../../components/common/Button";
 import { Input } from "../../components/common/Input";
 import { type IRestaurant } from "../../interfaces/IRestaurant";
+import { restaurantService } from "../../services/restaurantService";
 
 interface RestaurantFormModalProps {
   isOpen: boolean;
@@ -30,32 +31,36 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
   const [cuisineType, setCuisineType] = useState("");
   const [address, setAddress] = useState("");
 
-  // --- MÁSCARA DE TELEFONE ---
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+
+  // Máscara de telefone
   const formatPhone = (val: string) => {
     if (!val) return "";
-    const value = val.replace(/\D/g, ""); // Remove letras
-    const limited = value.slice(0, 11); // Limita tamanho
+    const value = val.replace(/\D/g, "");
+    const limited = value.slice(0, 11);
     return limited
-      .replace(/^(\d{2})(\d)/g, "($1) $2") // (11) 9...
-      .replace(/(\d)(\d{4})$/, "$1-$2"); // ...9999-9999
+      .replace(/^(\d{2})(\d)/g, "($1) $2")
+      .replace(/(\d)(\d{4})$/, "$1-$2");
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhone(formatPhone(e.target.value));
   };
 
-  // Popula formulário ao abrir/editar
   useEffect(() => {
     if (isOpen) {
       if (restaurantToEdit) {
         setName(restaurantToEdit.name);
-        // Aplica máscara ao carregar do banco
         setPhone(formatPhone(restaurantToEdit.cnpj));
-        setEmail((restaurantToEdit as any).email || "");
-        setCuisineType(restaurantToEdit.cuisineType || "");
+        setCuisineType(restaurantToEdit.cuisineType);
         setAddress(restaurantToEdit.address);
+
+        if (restaurantToEdit.email) {
+          setEmail(restaurantToEdit.email);
+        } else {
+          fetchFullDetails(restaurantToEdit.id);
+        }
       } else {
-        // Limpa tudo para novo cadastro
         setName("");
         setPhone("");
         setEmail("");
@@ -65,31 +70,39 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
     }
   }, [isOpen, restaurantToEdit]);
 
+  const fetchFullDetails = async (id: string) => {
+    setIsLoadingDetails(true);
+    try {
+      const fullData = await restaurantService.getRestaurantById(id);
+      if (fullData.email) setEmail(fullData.email);
+      setName(fullData.name);
+      setAddress(fullData.address);
+      setCuisineType(fullData.cuisineType);
+      setPhone(formatPhone(fullData.cnpj));
+    } catch (error) {
+      console.error("Erro ao buscar detalhes:", error);
+    } finally {
+      setIsLoadingDetails(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Sanitização
     const cleanName = name.trim();
     const cleanEmail = email.trim();
     const cleanPhone = phone.trim();
     const cleanCuisine = cuisineType.trim();
     const cleanAddress = address.trim();
 
-    // 2. Validações (Tratamento de Exceção)
-    if (cleanName.length == 0) return alert ("Insira o nome do restaurante")
-    if (cleanName.length < 3) return alert("Nome do restaurante muito curto.");
+    if (cleanName.length < 3) return alert("Nome muito curto.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail))
+      return alert("E-mail inválido.");
+    if (cleanPhone.replace(/\D/g, "").length < 10)
+      return alert("Telefone inválido.");
+    if (cleanCuisine.length < 3) return alert("Tipo de cozinha inválido.");
+    if (cleanAddress.length < 5) return alert("Endereço inválido.");
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(cleanEmail)) return alert("E-mail inválido.");
-
-    const phoneDigits = cleanPhone.replace(/\D/g, "");
-    if (phoneDigits.length < 10)
-      return alert("Telefone inválido (mínimo 10 dígitos).");
-
-    if (cleanCuisine.length < 3) return alert("Informe o tipo de cozinha.");
-    if (cleanAddress.length < 5) return alert("Endereço incompleto.");
-
-    // 3. Envio Seguro
     onSave({
       id: restaurantToEdit?.id,
       name: cleanName,
@@ -115,8 +128,16 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
           >
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} type="submit">
-            {restaurantToEdit ? "Salvar Alterações" : "Criar Restaurante"}
+          <Button
+            onClick={handleSubmit}
+            type="submit"
+            disabled={isLoadingDetails}
+          >
+            {isLoadingDetails
+              ? "Carregando..."
+              : restaurantToEdit
+              ? "Salvar Alterações"
+              : "Criar Restaurante"}
           </Button>
         </>
       }
@@ -129,7 +150,7 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            placeholder="Ex: Pizzaria do Luigi"
+            disabled={isLoadingDetails}
           />
         </div>
 
@@ -142,7 +163,11 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
             onChange={(e) => setEmail(e.target.value)}
             required
             placeholder="login@restaurante.com"
+            disabled={isLoadingDetails}
           />
+          {isLoadingDetails && (
+            <small style={{ color: "#666" }}>Buscando email...</small>
+          )}
         </div>
 
         <div className="form-group">
@@ -150,10 +175,10 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
           <Input
             id="phone"
             value={phone}
-            onChange={handlePhoneChange} // Usa a máscara
+            onChange={handlePhoneChange}
             required
-            placeholder="(XX) 99999-9999"
             maxLength={15}
+            disabled={isLoadingDetails}
           />
         </div>
 
@@ -164,7 +189,7 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
             value={cuisineType}
             onChange={(e) => setCuisineType(e.target.value)}
             required
-            placeholder="Ex: Italiana, Japonesa, Lanches"
+            disabled={isLoadingDetails}
           />
         </div>
 
@@ -175,7 +200,7 @@ export const RestaurantFormModal: React.FC<RestaurantFormModalProps> = ({
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             required
-            placeholder="Rua, Número - Bairro"
+            disabled={isLoadingDetails}
           />
         </div>
       </form>

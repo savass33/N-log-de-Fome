@@ -5,7 +5,6 @@ import {
   type OrderStatus,
 } from "../interfaces/IOrder";
 
-// Helper para status (Com Log de Debug)
 const mapStatus = (statusBanco: string, id?: string): OrderStatus => {
   const status = statusBanco?.toLowerCase() || "";
 
@@ -24,16 +23,10 @@ const mapStatus = (statusBanco: string, id?: string): OrderStatus => {
   else if (status.includes("entregue") || status.includes("concluido"))
     result = "delivered";
   else if (status.includes("cancelado")) result = "canceled";
-
-  // DEBUG: Descomente se quiser ver item por item
-  // console.log(`[Mapper] ID: ${id} | Banco: ${statusBanco} -> Front: ${result}`);
-
   return result;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDbOrderToIOrder = (dbOrder: any): IOrder => {
-  // Fallback para itens
   const itemsList =
     dbOrder.itempedido || dbOrder.ItemPedido || dbOrder.iTEMPEDIDO || [];
 
@@ -48,12 +41,10 @@ const mapDbOrderToIOrder = (dbOrder: any): IOrder => {
     clientName: dbOrder.cliente?.nome || "Cliente Desconhecido",
     restaurantName: dbOrder.restaurante?.nome || "Restaurante Desconhecido",
 
-    // Passamos o ID para o log
     status: mapStatus(dbOrder.status_pedido, dbOrder.id_pedido),
 
     createdAt: dbOrder.data_hora,
     totalValue: total,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     items: itemsList.map(
       (item: any) =>
         ({
@@ -70,21 +61,17 @@ const mapDbOrderToIOrder = (dbOrder: any): IOrder => {
 export const orderService = {
   getAllOrders: async (): Promise<IOrder[]> => {
     const response = await api.get("/pedidos");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return response.data.map((dbOrder: any) => mapDbOrderToIOrder(dbOrder));
   },
 
   getOrdersByRestaurant: async (restaurantId: string): Promise<IOrder[]> => {
     const response = await api.get(`/pedidos/restaurante/${restaurantId}`);
-    // LOG IMPORTANTE: Veja o que chega cru do backend
     console.log("📦 [Raw Fetch] Pedidos recebidos:", response.data);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return response.data.map((dbOrder: any) => mapDbOrderToIOrder(dbOrder));
   },
 
   getOrdersByClient: async (clientId: string): Promise<IOrder[]> => {
     const response = await api.get(`/pedidos/cliente/${clientId}`);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return response.data.map((dbOrder: any) => mapDbOrderToIOrder(dbOrder));
   },
 
@@ -112,7 +99,6 @@ export const orderService = {
     orderId: string,
     newStatus: OrderStatus
   ): Promise<void> => {
-    // Enviamos em inglês, o backend (index.ts) faz a tradução
     await api.put(`/pedidos/${orderId}`, { status_pedido: newStatus });
   },
 };

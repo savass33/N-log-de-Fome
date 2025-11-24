@@ -8,7 +8,6 @@ import { useAuth } from "../../hooks/useAuth";
 import { formatCurrency } from "../../utils/formatCurrency";
 import "./OrdersManagement.css";
 
-// Mapa de tradução FRONT -> BACK (Enum exato do Prisma)
 const statusMapToDb: Record<OrderStatus, string> = {
   pending: "Pendente",
   preparing: "Preparando",
@@ -67,7 +66,6 @@ export const OrdersManagement: React.FC = () => {
         return;
     }
 
-    // 1. UI Otimista
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
         order.id === orderId ? { ...order, status: newStatus } : order
@@ -75,16 +73,10 @@ export const OrdersManagement: React.FC = () => {
     );
 
     try {
-      // 2. Tradução e Envio
-      // Usamos o mapa reverso se o backend esperar PT-BR, ou mandamos direto se esperar EN
-      // Como seu backend index.ts tem um mapa interno que aceita inglês ("canceled"),
-      // podemos mandar "canceled" direto.
       await orderService.updateOrderStatus(orderId, newStatus);
 
       if (user?.restaurantId) {
-        setTimeout(() => {
-          // loadOrders(user.restaurantId); // Opcional, apenas se quiser forçar sync
-        }, 300);
+        setTimeout(() => {}, 300);
       }
     } catch (err) {
       console.error(err);
@@ -96,7 +88,6 @@ export const OrdersManagement: React.FC = () => {
   if (isLoading) return <Loader />;
   if (error) return <div className="error-message">{error}</div>;
 
-  // Adicionamos 'canceled' nas colunas se você quiser ver os cancelados também
   const columns = ["pending", "preparing", "on_the_way"] as const;
 
   return (
@@ -145,7 +136,6 @@ export const OrdersManagement: React.FC = () => {
                       </div>
 
                       <div className="order-card-actions">
-                        {/* BOTÕES PARA PENDENTE */}
                         {status === "pending" && (
                           <>
                             <Button
@@ -160,14 +150,13 @@ export const OrdersManagement: React.FC = () => {
                               onClick={() =>
                                 handleUpdateStatus(order.id, "canceled")
                               }
-                              style={{ backgroundColor: "#dc3545" }} // Vermelho
+                              style={{ backgroundColor: "#dc3545" }}
                             >
                               Cancelar Pedido
                             </Button>
                           </>
                         )}
 
-                        {/* BOTÕES PARA PREPARANDO */}
                         {status === "preparing" && (
                           <Button
                             onClick={() =>
@@ -178,7 +167,6 @@ export const OrdersManagement: React.FC = () => {
                           </Button>
                         )}
 
-                        {/* BOTÕES PARA A CAMINHO */}
                         {status === "on_the_way" && (
                           <Button
                             onClick={() =>

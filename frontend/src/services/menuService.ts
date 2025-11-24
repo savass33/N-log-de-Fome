@@ -1,13 +1,9 @@
-// src/services/menuService.ts
 import { api } from "./api";
 import { type IMenuItem } from "../interfaces/IMenuItem";
 
 export const menuService = {
-  // Busca itens de um restaurante
   getMenuByRestaurant: async (restaurantId: string): Promise<IMenuItem[]> => {
     const response = await api.get(`/cardapio/restaurante/${restaurantId}`);
-    // Adapter: Banco -> Interface
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return response.data.map((item: any) => ({
       id: item.id_item_cardapio.toString(),
       name: item.nome,

@@ -23,7 +23,7 @@
   margin-top: 24px;
 }
 
-/* MyRestaurant.tsx */
+/* MyRestaurant */
 .restaurant-profile-header {
   text-align: center;
 }
@@ -59,7 +59,7 @@
   border-radius: 6px;
 }
 
-/* MenuManagement.tsx */
+/* MenuManagement */
 .menu-items-list {
   display: grid;
   grid-template-columns: 1fr;
@@ -96,39 +96,4 @@
 }
 .menu-item-actions .btn-danger {
   background-color: var(--primary-color);
-}
-
-/* Reviews.tsx */
-.reviews-summary-card {
-  text-align: center;
-  margin-bottom: 24px;
-}
-.reviews-list h2 {
-  margin-bottom: 16px;
-}
-.review-card {
-  margin-bottom: 16px;
-}
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.review-comment {
-  font-style: italic;
-  color: var(--text-color);
-  margin-bottom: 12px;
-}
-.review-date {
-  font-size: 0.8rem;
-  color: var(--text-color-light);
-}
-
-/* Star Rating Component */
-.star-rating {
-  color: var(--text-color-light);
-}
-.star-rating .filled {
-  color: #F2994A; /* Cor secundária (laranja) */
 }

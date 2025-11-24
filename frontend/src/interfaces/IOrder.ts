@@ -1,6 +1,3 @@
-// src/interfaces/IOrder.ts
-
-// Definição estrita dos status possíveis no Frontend
 export type OrderStatus =
   | "pending"
   | "preparing"
@@ -13,15 +10,15 @@ export interface IOrderItem {
   descricao: string;
   quantidade: number;
   preco: number;
-  menuItem?: { id: string; name: string }; // Opcional, dependendo do seu uso
+  menuItem?: { id: string; name: string };
 }
 
 export interface IOrder {
   id: string;
   clientName: string;
   restaurantName: string;
-  status: OrderStatus; // Aqui usamos o tipo estrito
-  createdAt: string; // ou Date, dependendo de como você trata
+  status: OrderStatus;
+  createdAt: string;
   totalValue: number;
   items: IOrderItem[];
 }

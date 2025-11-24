@@ -11,7 +11,6 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user } = useAuth();
 
-  // O App.tsx já cuida disso, mas é uma boa garantia.
   if (!user) {
     return null;
   }

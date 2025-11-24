@@ -28,7 +28,6 @@ import { OrdersHistory } from "../pages/Clients/OrdersHistory";
 import { ClientProfile } from "../pages/Clients/ClientProfile";
 
 import { AccountSettings } from "../pages/shared/Settings/AccountSettings";
-import { Preferences } from "../pages/shared/Settings/Preferences";
 import { NotFound } from "../pages/shared/Errors/NotFound";
 import { AccessDenied } from "../pages/shared/Errors/AccessDenied";
 
@@ -37,9 +36,8 @@ export type UserRole = "admin" | "restaurant" | "client";
 export const AppRoutes = () => {
   const { user } = useAuth();
 
-  // Função auxiliar para decidir para onde mandar o usuário quando ele acessa "/"
   const getHomeRoute = () => {
-    if (!user) return "/login"; // <--- AQUI ESTÁ A MÁGICA
+    if (!user) return "/login";
 
     // Se já estiver logado, manda para a home correta de cada perfil
     switch (user.role) {
@@ -56,18 +54,12 @@ export const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* ========================================================= */}
-      {/* 🧭 ROTA RAIZ (Redirecionamento Automático)               */}
-      {/* ========================================================= */}
+      {/* ROTA RAIZ (Redirecionamento Automático)               */}
       <Route path="/" element={<Navigate to={getHomeRoute()} replace />} />
-      {/* ========================================================= */}
-      {/* 🔓 ROTAS PÚBLICAS (Sem Layout, Sem Sidebar)              */}
-      {/* ========================================================= */}
+      {/* ROTAS PÚBLICAS (Sem Layout, Sem Sidebar)              */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      {/* ========================================================= */}
-      {/* 🔒 ROTAS PRIVADAS (Com Layout + Sidebar)                 */}
-      {/* ========================================================= */}
+      {/* ROTAS PRIVADAS (Com Layout + Sidebar)                 */}
       <Route
         element={
           <Layout>
@@ -115,11 +107,8 @@ export const AppRoutes = () => {
           }
         >
           <Route path="/settings/account" element={<AccountSettings />} />
-          <Route path="/settings/preferences" element={<Preferences />} />
         </Route>
       </Route>{" "}
-      {/* Fim do Layout Wrapper */}
-      {/* --- ERROS --- */}
       <Route path="/access-denied" element={<AccessDenied />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

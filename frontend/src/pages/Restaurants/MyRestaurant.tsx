@@ -22,10 +22,8 @@ export const MyRestaurant: React.FC = () => {
       if (user.phone) setPhone(formatPhone(user.phone));
       if (user.restaurantId) loadRestaurantData(user.restaurantId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  // --- Máscara de Telefone ---
   const formatPhone = (val: string) => {
     if (!val) return "";
     const value = val.replace(/\D/g, "");
@@ -39,11 +37,8 @@ export const MyRestaurant: React.FC = () => {
     setPhone(formatPhone(e.target.value));
   };
 
-  // --- Filtro de Tipo de Cozinha (Sem Números) ---
   const handleCuisineChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    // Regex: Permite apenas Letras (com acentos) e espaços
-    // Bloqueia números e símbolos especiais
     if (/^[A-Za-zÀ-ÖØ-öø-ÿ\s]*$/.test(val)) {
       setCuisine(val);
     }
@@ -62,7 +57,6 @@ export const MyRestaurant: React.FC = () => {
   };
 
   const handleSaveChanges = async () => {
-    // 1. Sanitização e Validação
     if (!user?.restaurantId) return alert("Erro de sessão.");
 
     const cleanName = name.trim();
@@ -72,6 +66,7 @@ export const MyRestaurant: React.FC = () => {
 
     if (cleanName.length < 3) return alert("Nome inválido.");
     if (cleanAddress.length < 5) return alert("Endereço incompleto.");
+    if (cleanAddress.length > 50) return alert("Endereço é muito grande.");
     if (cleanPhone.length < 10) return alert("Telefone inválido.");
 
     if (cleanCuisine.length < 3) {
@@ -136,7 +131,6 @@ export const MyRestaurant: React.FC = () => {
             <Input
               id="cuisine"
               value={cuisine}
-              // CORREÇÃO: Usa o handler com validação
               onChange={handleCuisineChange}
               disabled={isLoading}
               placeholder="Ex: Italiana (Apenas letras)"

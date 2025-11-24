@@ -1,6 +1,3 @@
-/* Auth.css */
-
-/* Animação suave de entrada */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 2; transform: translateY(0); }
@@ -11,17 +8,14 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  /* Gradiente sutil para dar vida ao fundo */
   background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
   padding: 20px;
 }
 
-/* Unificando estilos de card (login e auth) */
 .auth-card, .login-card {
   background-color: white;
   padding: 40px;
   border-radius: 16px;
-  /* Sombra difusa e elegante */
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
   width: 100%;
   max-width: 420px;
@@ -30,11 +24,10 @@
   animation: fadeIn 0.6s ease-out forwards;
 }
 
-/* Títulos */
 .auth-title, .login-title {
   font-size: 2rem;
   font-weight: 800;
-  color: #e63946; /* Cor da marca */
+  color: #e63946;
   margin-bottom: 8px;
   letter-spacing: -0.5px;
 }
@@ -46,7 +39,6 @@
   line-height: 1.5;
 }
 
-/* Formulário */
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -64,11 +56,10 @@
   letter-spacing: 0.5px;
 }
 
-/* Inputs Modernos */
 .auth-input {
   width: 100%;
   padding: 12px 15px;
-  border: 2px solid #eee; /* Borda mais suave inicial */
+  border: 2px solid #eee;
   border-radius: 8px;
   font-size: 1rem;
   background-color: #fafafa;
@@ -79,14 +70,13 @@
 .auth-input:focus {
   outline: none;
   background-color: #fff;
-  border-color: #e63946; /* Cor primária no foco */
-  box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1); /* Brilho externo suave */
+  border-color: #e63946;
+  box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1);
 }
 
-/* Seletor de Perfil (Role Selector) Estilizado */
 .role-selector {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* Divide em 3 colunas iguais */
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
   margin-bottom: 10px;
 }
@@ -107,7 +97,6 @@
   position: relative;
 }
 
-/* Esconde o input radio nativo para customizar */
 .role-option input[type="radio"] {
   display: none; 
 }
@@ -117,7 +106,6 @@
   transform: translateY(-2px);
 }
 
-/* Estado Ativo do Seletor */
 .role-option.active {
   background-color: #fff0f1;
   border-color: #e63946;
@@ -126,7 +114,6 @@
   box-shadow: 0 4px 6px rgba(230, 57, 70, 0.15);
 }
 
-/* Botões Principais */
 .auth-button, .btn {
   background: linear-gradient(135deg, #e63946 0%, #d62828 100%);
   color: white;
@@ -139,7 +126,7 @@
   margin-top: 10px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(230, 57, 70, 0.3);
-  width: 100%; /* Garante largura total */
+  width: 100%;
 }
 
 .auth-button:hover, .btn:hover {
@@ -155,7 +142,6 @@
   box-shadow: none;
 }
 
-/* Footer (Links) */
 .auth-footer {
   margin-top: 2rem;
   font-size: 0.9rem;
@@ -174,7 +160,6 @@
   text-decoration: underline;
 }
 
-/* Botões Específicos da tela de Login Antiga (Testes) */
 .login-actions {
   display: flex;
   flex-direction: column;

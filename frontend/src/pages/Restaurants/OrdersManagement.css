@@ -51,7 +51,6 @@
   margin-top: 12px;
 }
 
-/* Scaffolds para Button e Loader */
 .btn {
   background-color: var(--primary-color);
   color: white;

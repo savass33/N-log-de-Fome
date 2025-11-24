@@ -15,7 +15,6 @@ interface IAuthContext {
   isLoading: boolean;
   login: (email: string, role: UserRole) => Promise<void>;
   logout: () => void;
-  // NOVA FUNÇÃO: Permite atualizar os dados do usuário sem deslogar
   updateUserSession: (newData: Partial<IUser>) => void;
 }
 
@@ -57,16 +56,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     nav("/");
   };
 
-  // --- NOVA FUNÇÃO DE ATUALIZAÇÃO ---
   const updateUserSession = (newData: Partial<IUser>) => {
     if (user) {
-      // 1. Cria o novo objeto misturando o antigo com os dados novos
       const updatedUser = { ...user, ...newData };
-
-      // 2. Atualiza o Estado do React (reflete na hora na tela)
       setUser(updatedUser);
 
-      // 3. Atualiza o LocalStorage (reflete ao dar F5)
       localStorage.setItem("nlog_user", JSON.stringify(updatedUser));
     }
   };
@@ -77,7 +71,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       isLoading,
       login,
       logout,
-      updateUserSession, // Não esqueça de exportar aqui
+      updateUserSession,
     }),
     [user, isLoading]
   );

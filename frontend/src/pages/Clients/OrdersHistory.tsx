@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Importante para navegação
+import { useNavigate } from "react-router-dom";
 import { Card } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
 import { type IOrder } from "../../interfaces/IOrder";
@@ -21,7 +21,6 @@ export const OrdersHistory: React.FC = () => {
   const loadOrders = async () => {
     try {
       const data = await orderService.getAllOrders();
-      // Ordena do mais recente para o mais antigo
       const sorted = data.sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -34,7 +33,6 @@ export const OrdersHistory: React.FC = () => {
     }
   };
 
-  // Configuração de cores e textos para os status (pt-BR)
   const getStatusConfig = (status: string) => {
     const s = status?.toLowerCase() || "";
 
