@@ -35,6 +35,14 @@ export const ClientProfile: React.FC = () => {
     setPhone(formatPhoneOnly(e.target.value));
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const onlyLetters = value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s]/g, "");
+
+    setName(onlyLetters);
+  };
+
+
   const handleSave = async () => {
     const cleanName = name.trim();
     const cleanAddress = address.trim();
@@ -86,11 +94,12 @@ export const ClientProfile: React.FC = () => {
             <Input
               id="name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={handleNameChange}
               placeholder="Digite seu nome"
               maxLength={100}
               disabled={isSaving}
             />
+
           </div>
           <div className="form-group">
             <label htmlFor="email">Email</label>
