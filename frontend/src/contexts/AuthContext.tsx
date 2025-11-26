@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
       if (role === "admin") nav("/admin/restaurants");
       else if (role === "restaurant") nav("/restaurant/orders");
-      else nav("/client/restaurants");
+      else nav("/client/dashboard");
     } catch (error) {
       console.error(error);
       alert("Falha no login.");
