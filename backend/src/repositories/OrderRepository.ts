@@ -1,7 +1,6 @@
 import { pool } from "../config/db";
 
 export class OrderRepository {
-  // Helper privado para buscar os itens de um pedido
   private async getItemsByOrderId(orderId: number) {
     const [rows]: any = await pool.execute(
       "SELECT * FROM ITEMPEDIDO WHERE id_pedido_fk = ?",
@@ -10,7 +9,6 @@ export class OrderRepository {
     return rows;
   }
 
-  // Helper privado para buscar cliente e restaurante (imitar o include do Prisma)
   private async enrichOrder(order: any) {
     const [clientes]: any = await pool.execute(
       "SELECT * FROM CLIENTE WHERE id_cliente = ?",
@@ -33,7 +31,6 @@ export class OrderRepository {
       "SELECT * FROM PEDIDO ORDER BY id_pedido DESC"
     );
 
-    // Popula os dados relacionados (N+1 query, mas seguro para SQL puro simples)
     const enrichedOrders = await Promise.all(
       orders.map((order: any) => this.enrichOrder(order))
     );
@@ -68,16 +65,12 @@ export class OrderRepository {
   async create(data: { clientId: number; restaurantId: number; items: any[] }) {
     const conn = await pool.getConnection();
     try {
-      await conn.beginTransaction(); // Inicia Transação (Rollback se der erro)
-
-      // 1. Cria o Pedido
+      await conn.beginTransaction();
       const [result]: any = await conn.execute(
         "INSERT INTO PEDIDO (id_cliente_fk, id_restaurante_fk, data_hora, status_pedido) VALUES (?, ?, NOW(), ?)",
         [data.clientId, data.restaurantId, "Pendente"]
       );
       const orderId = result.insertId;
-
-      // 2. Cria os Itens
       for (const item of data.items) {
         await conn.execute(
           "INSERT INTO ITEMPEDIDO (id_pedido_fk, descrição, quantidade, preco) VALUES (?, ?, ?, ?)",
@@ -85,10 +78,10 @@ export class OrderRepository {
         );
       }
 
-      await conn.commit(); // Salva tudo
-      return this.findById(orderId); // Retorna o pedido completo
+      await conn.commit();
+      return this.findById(orderId);
     } catch (error) {
-      await conn.rollback(); // Desfaz tudo se der erro
+      await conn.rollback();
       throw error;
     } finally {
       conn.release();

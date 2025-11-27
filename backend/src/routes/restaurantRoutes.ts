@@ -57,7 +57,6 @@ router.put("/restaurantes/:id", async (req, res) => {
 });
 
 router.delete("/restaurantes/:id", async (req, res) => {
-  // O tratamento de pedidos vinculados deve ser feito aqui se não confiar no Cascade
   await restRepo.delete(Number(req.params.id));
   res.json({ message: "Deletado" });
 });

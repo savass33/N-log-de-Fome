@@ -30,7 +30,6 @@ export const MenuController = {
       return res.status(400).json({ error: "Categoria obrigatória." });
 
     try {
-      // Validação de Duplicidade no Cardápio
       const exists = await menuRepo.findByNameInRestaurant(
         Number(id_restaurante_fk),
         nome.trim()
@@ -64,10 +63,6 @@ export const MenuController = {
       return res.status(400).json({ error: "Preço inválido." });
 
     try {
-      // Na edição, não precisamos checar duplicidade de nome estritamente,
-      // a menos que o usuário mude o nome para um que já existe (lógica complexa omitida para brevidade,
-      // mas idealmente checaria se nome existe AND id != id atual).
-
       const updated = await menuRepo.update(id, {
         nome: nome.trim(),
         descricao: descricao?.trim(),

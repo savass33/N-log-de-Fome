@@ -43,13 +43,11 @@ export class RestaurantRepository {
   }
 
   async update(id: number, data: any) {
-    // 1. Busca o atual para não perder dados se vierem undefined
     const current = await this.findById(id);
     if (!current) throw new Error("Restaurante não encontrado");
 
     const sql = `UPDATE RESTAURANTE SET nome=?, telefone=?, tipo_cozinha=?, email=?, endereco=? WHERE id_restaurante=?`;
 
-    // 2. Se o dado novo for undefined/null, usa o que já estava no banco (current)
     const params = [
       data.nome || current.nome,
       data.telefone || current.telefone,

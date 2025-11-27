@@ -6,8 +6,6 @@ export class AuthRepository {
     role: "client" | "restaurant" | "admin"
   ) {
     let query = "";
-
-    // Define a tabela baseado na role
     if (role === "client") query = "SELECT * FROM CLIENTE WHERE email = ?";
     else if (role === "restaurant")
       query = "SELECT * FROM RESTAURANTE WHERE email = ?";

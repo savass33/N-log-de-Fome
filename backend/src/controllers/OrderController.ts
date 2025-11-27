@@ -51,7 +51,6 @@ export const OrderController = {
   async create(req: Request, res: Response) {
     const { id_cliente_fk, id_restaurante_fk, itens } = req.body;
 
-    // Validação Rigorosa do Payload
     if (!id_cliente_fk || isNaN(Number(id_cliente_fk)))
       return res.status(400).json({ error: "Cliente inválido." });
     if (!id_restaurante_fk || isNaN(Number(id_restaurante_fk)))
@@ -63,16 +62,13 @@ export const OrderController = {
         .json({ error: "O pedido deve conter pelo menos um item." });
     }
 
-    // Validação Profunda dos Itens
     for (const item of itens) {
       if (!item.descricao || item.descricao.trim() === "")
         return res.status(400).json({ error: "Item com descrição inválida." });
       if (!item.quantidade || Number(item.quantidade) <= 0)
-        return res
-          .status(400)
-          .json({
-            error: `Quantidade inválida para o item: ${item.descricao}`,
-          });
+        return res.status(400).json({
+          error: `Quantidade inválida para o item: ${item.descricao}`,
+        });
       if (item.preco === undefined || Number(item.preco) < 0)
         return res
           .status(400)
@@ -106,7 +102,6 @@ export const OrderController = {
       "Cancelado",
     ];
 
-    // Mapeamento Case-Insensitive
     const statusMap: Record<string, string> = {
       pending: "Pendente",
       preparing: "Preparando",
@@ -118,18 +113,14 @@ export const OrderController = {
     const key = String(status_pedido).toLowerCase().trim();
     const finalStatus = statusMap[key] || status_pedido;
 
-    // Validação final de integridade do enum
-    // (Aqui verificamos se a string final bate com o que o banco aceita, ignorando case sensitive no check)
     const isStatusValid = validStatus.some(
       (s) => s.toLowerCase() === String(finalStatus).toLowerCase()
     );
 
     if (!isStatusValid) {
-      return res
-        .status(400)
-        .json({
-          error: `Status inválido. Permitidos: ${validStatus.join(", ")}`,
-        });
+      return res.status(400).json({
+        error: `Status inválido. Permitidos: ${validStatus.join(", ")}`,
+      });
     }
 
     try {

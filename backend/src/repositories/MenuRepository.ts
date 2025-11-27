@@ -20,7 +20,6 @@ export class MenuRepository {
   async create(data: any) {
     const sql = `INSERT INTO ITEM_CARDAPIO (id_restaurante_fk, nome, descricao, preco, categoria, imagem_url) VALUES (?, ?, ?, ?, ?, ?)`;
 
-    // CORREÇÃO: O operador || null garante que se for undefined, envia null pro SQL
     const params = [
       data.id_restaurante_fk,
       data.nome,
@@ -37,7 +36,6 @@ export class MenuRepository {
   async update(id: number, data: any) {
     const sql = `UPDATE ITEM_CARDAPIO SET nome=?, descricao=?, preco=?, categoria=?, imagem_url=? WHERE id_item_cardapio=?`;
 
-    // CORREÇÃO: Mesma proteção aqui no update
     const params = [
       data.nome,
       data.descricao || null,

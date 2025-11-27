@@ -33,7 +33,6 @@ export const RestaurantController = {
   async create(req: Request, res: Response) {
     const { nome, telefone, tipo_cozinha, email, endereco } = req.body;
 
-    // 1. Validações Rigorosas
     if (!Validators.isValidString(nome, 2))
       return res.status(400).json({ error: "Nome do restaurante inválido." });
     if (!Validators.isValidString(tipo_cozinha, 3))
@@ -46,23 +45,18 @@ export const RestaurantController = {
       return res.status(400).json({ error: "Telefone inválido." });
 
     try {
-      // 2. Validação de Nome Duplicado (Regra de Negócio)
-      const existsName = await restRepo.findByEmailOrName("", nome); // Passa email vazio para checar só nome
+      const existsName = await restRepo.findByEmailOrName("", nome);
       if (existsName && existsName.nome.toLowerCase() === nome.toLowerCase()) {
         return res
           .status(409)
           .json({ error: "Já existe um restaurante com este nome exato." });
       }
 
-      // 3. Validação Global de Email
       const isUniqueEmail = await Validators.isEmailGloballyUnique(email);
       if (!isUniqueEmail) {
-        return res
-          .status(409)
-          .json({
-            error:
-              "Este e-mail já está cadastrado em outra conta.",
-          });
+        return res.status(409).json({
+          error: "Este e-mail já está cadastrado em outra conta.",
+        });
       }
 
       const novo = await restRepo.create({
@@ -83,15 +77,12 @@ export const RestaurantController = {
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido." });
 
     const { nome, telefone, tipo_cozinha, email, endereco } = req.body;
-
-    // Validações repetidas para segurança
     if (!Validators.isValidString(nome, 2))
       return res.status(400).json({ error: "Nome inválido." });
     if (!Validators.isValidEmail(email))
       return res.status(400).json({ error: "E-mail inválido." });
 
     try {
-      // Valida Nome (excluindo o próprio ID)
       const existsName = await restRepo.findByEmailOrName("", nome, id);
       if (existsName && existsName.nome.toLowerCase() === nome.toLowerCase()) {
         return res
@@ -99,7 +90,6 @@ export const RestaurantController = {
           .json({ error: "Este nome já está em uso por outro restaurante." });
       }
 
-      // Valida Email Global (excluindo o próprio ID)
       const isUnique = await Validators.isEmailGloballyUnique(
         email,
         id,
@@ -130,12 +120,9 @@ export const RestaurantController = {
     try {
       const orders = await orderRepo.findByRestaurant(id);
       if (orders.length > 0)
-        return res
-          .status(400)
-          .json({
-            error:
-              "Impossível excluir: Restaurante possui histórico de pedidos.",
-          });
+        return res.status(400).json({
+          error: "Impossível excluir: Restaurante possui histórico de pedidos.",
+        });
 
       await restRepo.delete(id);
       res.json({ message: "Restaurante deletado com sucesso." });

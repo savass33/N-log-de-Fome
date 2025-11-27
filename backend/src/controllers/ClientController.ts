@@ -34,7 +34,6 @@ export const ClientController = {
   async create(req: Request, res: Response) {
     const { nome, telefone, endereco, email } = req.body;
 
-    // 1. Sanitização e Validação de Tipos
     if (!Validators.isValidString(nome, 3))
       return res
         .status(400)
@@ -51,7 +50,6 @@ export const ClientController = {
       return res.status(400).json({ error: "Formato de e-mail inválido." });
 
     try {
-      // 2. Verificação Global de Unicidade
       const isUnique = await Validators.isEmailGloballyUnique(email);
       if (!isUnique) {
         return res.status(409).json({
@@ -61,7 +59,7 @@ export const ClientController = {
 
       const newClient = await clientRepo.create({
         nome: nome.trim(),
-        telefone: telefone.replace(/\D/g, ""), // Salva apenas números
+        telefone: telefone.replace(/\D/g, ""),
         endereco: endereco.trim(),
         email: email.toLowerCase().trim(),
       });
@@ -80,7 +78,6 @@ export const ClientController = {
 
     const { nome, telefone, endereco, email } = req.body;
 
-    // Validações
     if (!Validators.isValidString(nome, 3))
       return res.status(400).json({ error: "Nome inválido." });
     if (!Validators.isValidEmail(email))
@@ -89,7 +86,6 @@ export const ClientController = {
       return res.status(400).json({ error: "Telefone inválido." });
 
     try {
-      // Verifica unicidade excluindo o próprio ID
       const isUnique = await Validators.isEmailGloballyUnique(
         email,
         id,
@@ -123,9 +119,6 @@ export const ClientController = {
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido." });
 
     try {
-      // REMOVIDO: A verificação de pedidos bloqueante.
-      // Agora confiamos no Repository para fazer a limpeza completa.
-
       const client = await clientRepo.findById(id);
       if (!client)
         return res.status(404).json({ error: "Cliente não encontrado." });
