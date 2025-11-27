@@ -22,6 +22,7 @@ export const MyRestaurant: React.FC = () => {
       if (user.phone) setPhone(formatPhone(user.phone));
       if (user.restaurantId) loadRestaurantData(user.restaurantId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const formatPhone = (val: string) => {
@@ -80,6 +81,7 @@ export const MyRestaurant: React.FC = () => {
         address: cleanAddress,
         phone: phone,
         cuisineType: cleanCuisine,
+        email: user.email, // CORREÇÃO: Envia o email atual para manter integridade
       });
 
       updateUserSession({
@@ -100,7 +102,7 @@ export const MyRestaurant: React.FC = () => {
   return (
     <div className="restaurant-page-container">
       <h1>Meu Restaurante</h1>
-
+      {/* ... (Resto do JSX permanece igual) ... */}
       <Card>
         <div className="restaurant-profile-header">
           <div style={{ textAlign: "left" }}>
@@ -125,7 +127,6 @@ export const MyRestaurant: React.FC = () => {
               disabled={isLoading}
             />
           </div>
-
           <div className="form-group">
             <label htmlFor="cuisine">Tipo de Cozinha</label>
             <Input
@@ -136,7 +137,6 @@ export const MyRestaurant: React.FC = () => {
               placeholder="Ex: Italiana (Apenas letras)"
             />
           </div>
-
           <div className="form-group">
             <label htmlFor="address">Endereço</label>
             <Input
@@ -146,7 +146,6 @@ export const MyRestaurant: React.FC = () => {
               disabled={isLoading}
             />
           </div>
-
           <div className="form-group">
             <label htmlFor="phone">Telefone de Contato</label>
             <Input
@@ -158,7 +157,6 @@ export const MyRestaurant: React.FC = () => {
               maxLength={15}
             />
           </div>
-
           <Button
             onClick={handleSaveChanges}
             type="button"

@@ -76,14 +76,19 @@ export const RestaurantsList: React.FC = () => {
     setIsLoading(true);
     try {
       if (formData.id) {
+        // EDITAR (UPDATE)
         await restaurantService.updateRestaurant(formData.id, {
           name: formData.name,
           phone: formData.phone,
           cuisineType: formData.cuisineType,
           address: formData.address,
+
+          // CORREÇÃO CRUCIAL: Passar o email aqui também!
+          email: formData.email,
         });
         alert("Restaurante atualizado!");
       } else {
+        // CRIAR (CREATE)
         await restaurantService.createRestaurant({
           name: formData.name,
           phone: formData.phone,
@@ -93,10 +98,14 @@ export const RestaurantsList: React.FC = () => {
         });
         alert("Restaurante criado com sucesso!");
       }
+
+      // Fecha o modal e recarrega
+      setIsFormModalOpen(false);
       await loadRestaurants();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("Erro ao salvar restaurante. Verifique se o e-mail já existe.");
+      const msg = error.response?.data?.error || "Erro ao salvar restaurante.";
+      alert(msg);
     } finally {
       setIsLoading(false);
     }
