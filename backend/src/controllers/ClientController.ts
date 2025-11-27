@@ -54,12 +54,9 @@ export const ClientController = {
       // 2. Verificação Global de Unicidade
       const isUnique = await Validators.isEmailGloballyUnique(email);
       if (!isUnique) {
-        return res
-          .status(409)
-          .json({
-            error:
-              "Este e-mail já está sendo usado por outro usuário.",
-          });
+        return res.status(409).json({
+          error: "Este e-mail já está sendo usado por outro usuário.",
+        });
       }
 
       const newClient = await clientRepo.create({
@@ -126,19 +123,17 @@ export const ClientController = {
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido." });
 
     try {
-      // Verificação de Segurança: Integridade Referencial
-      const orders = await orderRepo.findByClient(id);
-      if (orders.length > 0) {
-        return res
-          .status(400)
-          .json({
-            error:
-              "Bloqueado: Este cliente possui histórico de pedidos. Não pode ser excluído.",
-          });
-      }
+      // REMOVIDO: A verificação de pedidos bloqueante.
+      // Agora confiamos no Repository para fazer a limpeza completa.
+
+      const client = await clientRepo.findById(id);
+      if (!client)
+        return res.status(404).json({ error: "Cliente não encontrado." });
 
       await clientRepo.delete(id);
-      res.json({ message: "Cliente deletado com segurança." });
+      res.json({
+        message: "Cliente e todo seu histórico foram deletados com sucesso.",
+      });
     } catch (error) {
       res.status(500).json({ error: "Erro ao deletar cliente." });
     }

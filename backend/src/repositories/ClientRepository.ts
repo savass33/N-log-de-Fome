@@ -63,7 +63,25 @@ export class ClientRepository {
   }
 
   async delete(id: number) {
-    // SQL DELETE (Assume que o banco tem ON DELETE CASCADE ou que validaremos antes)
-    await pool.execute("DELETE FROM CLIENTE WHERE id_cliente = ?", [id]);
+    const conn = await pool.getConnection();
+    try {
+      await conn.beginTransaction();
+      await conn.execute(
+        `
+                DELETE FROM ITEMPEDIDO 
+                WHERE id_pedido_fk IN (SELECT id_pedido FROM PEDIDO WHERE id_cliente_fk = ?)
+            `,
+        [id]
+      );
+      await conn.execute("DELETE FROM PEDIDO WHERE id_cliente_fk = ?", [id]);
+      await conn.execute("DELETE FROM CLIENTE WHERE id_cliente = ?", [id]);
+
+      await conn.commit();
+    } catch (error) {
+      await conn.rollback();
+      throw error;
+    } finally {
+      conn.release();
+    }
   }
 }
