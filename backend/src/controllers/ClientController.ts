@@ -4,7 +4,6 @@ import { OrderRepository } from "../repositories/OrderRepository";
 import { Validators } from "../utils/validators";
 
 const clientRepo = new ClientRepository();
-const orderRepo = new OrderRepository();
 
 export const ClientController = {
   async getAll(req: Request, res: Response) {
